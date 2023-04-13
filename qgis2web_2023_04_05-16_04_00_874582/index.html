@@ -1339,70 +1339,119 @@
             map.setView(e.geocode.center, 16);
         }); // e.geocode 是一个 GeocoderResult 对象，包含有关搜索结果的详细信息，例如位置坐标、地址名称等
 
-        // 创建筛选控件
-        var filterControl = L.Control.extend({
-            options: {
-                position: 'topright'
-            },
-            onAdd: function (map) {
-        var container = L.DomUtil.create('div', 'filter-container');
-            container.innerHTML = '<h4>Filter Schools</h4><select id="filter-schools"><option value="">All Schools</option><option value="Primary">Primary Schools</option><option value="Secondary">Secondary Schools</option><option value="Other">Other Schools</option></select>';
-            return container;
-            }
-        });
+            
+            
+            
+            
+        // FILTERING 
+var filterControl = L.Control.extend({
+        options: {
+            position: 'topright'
+        },
+        onAdd: function (map) {
+            var container = L.DomUtil.create('div', 'filter-container');
+            container.innerHTML = '<button id="filter-btn">Filter Schools</button>';
 
-        // 将筛选控件添加到地图中
-        map.addControl(new filterControl());
-
-
-        function updateSchoolsLayer() {
-            var schoolType = document.getElementById('filter-schools').value;
-            var school_type = [];
-            if (schoolType == 'Primary'){
-                school_type.push(1)
-                school_type.push(6)
-            } else if (schoolType == 'Secondary'){
-                school_type.push(7)
-                school_type.push(9)
-            } else if (schoolType == 'Other'){
-                school_type.push(9)
-                school_type.push(13)
-            } else {
-                school_type.push(20)
-            }
-            console.log('schoolType'+schoolType)
-            layer_school_girls_1,layer_school_boys_2,layer_school_coed_3.eachLayer(function (layer) {
-                // console.log('schoolType2'+schoolType)
-                console.log('选择的学校是： '+layer.feature.properties['MOE_years'])
-                if (layer.feature.properties['MOE_years'] != null){
-                    if (schoolType[0] === 20 || 
-                    (school_type[0] <= layer.feature.properties['MOE_years'].split("-").map(Number)[0] &&
-                     layer.feature.properties['MOE_years'].split("-").map(Number)[0] <= school_type[1]) ||
-                    (school_type[0] <= layer.feature.properties['MOE_years'].split("-").map(Number)[1] &&
-                     layer.feature.properties['MOE_years'].split("-").map(Number)[1] <= school_type[1])) {
-
-                    console.log('判定为: '+schoolType+layer.feature.properties['MOE_years'].split("-").map(Number))
-                    // console.log(schoolType[0] === 20)
-                    // console.log(school_type[0] <= layer.feature.properties['MOE:years'].split("-").map(Number)[0] && layer.feature.properties['MOE:years'].split("-").map(Number)[0]<= school_type[1])
-                    // console.log(school_type[0] <= layer.feature.properties['MOE:years'].split("-").map(Number)[1] <= school_type[1])
-                    console.log('school_type'+school_type)
-                    layer.setStyle({
-                        fillColor: 'rgba(196,60,57,1.0)'
-                });
-                layer.addTo(map);
-            } else {
-                console.log('判定为不是')
-                map.removeLayer(layer);
-                }
-                }
-                
+            //popup for filtering options
+            var filterPopup = L.popup({
+                closeButton: true,
+                closeOnClick: false,
+                minWidth: 200,
+                autoPan: true
             });
-        }
 
-        // 监听筛选器的变化事件
-        document.getElementById('filter-schools').addEventListener('change', function () {
-            updateSchoolsLayer();
+            filterPopup.setContent(
+                '<h4>Filter Schools</h4>' +
+                '<input type="checkbox" id="filter-primary" value="Primary"> Primary Schools<br>' +
+                '<input type="checkbox" id="filter-secondary" value="Secondary"> Secondary Schools<br>' +
+                '<input type="checkbox" id="filter-other" value="Other"> Other Schools<br>' +
+                '<hr>' +
+                '<input type="checkbox" id="filter-boys" value="boys"> Boys Schools<br>' +
+                '<input type="checkbox" id="filter-girls" value="girls"> Girls Schools<br>' +
+                '<input type="checkbox" id="filter-coed" value="coed"> Coed Schools<br>'+
+                '<hr>' +
+                '<input type="checkbox" id="filter-busstops" value="busstops"> Bus Stops<br>' +
+                '<input type="checkbox" id="filter-parks" value="parks"> Parks<br>' +
+                '<input type="checkbox" id="filter-parkingspaces" value="parkingspaces"> Parking Spaces<br>'
+            );
+
+
+            container.onclick = function (e) {
+                L.DomEvent.stopPropagation(e);
+                filterPopup.setLatLng(map.getCenter()).openOn(map);
+                //event listeners to checkboxes
+                document.getElementById('filter-primary').addEventListener('change', updateSchoolsLayer);
+                document.getElementById('filter-secondary').addEventListener('change', updateSchoolsLayer);
+                document.getElementById('filter-other').addEventListener('change', updateSchoolsLayer);
+                document.getElementById('filter-boys').addEventListener('change', updateSchoolsLayer);
+                document.getElementById('filter-girls').addEventListener('change', updateSchoolsLayer);
+                document.getElementById('filter-coed').addEventListener('change', updateSchoolsLayer);
+            };
+
+        return container;
+        }
+});
+map.addControl(new filterControl());
+
+
+function updateSchoolsLayer() {
+    var schoolType = {
+        Primary: document.getElementById('filter-primary').checked,
+        Secondary: document.getElementById('filter-secondary').checked,
+        Other: document.getElementById('filter-other').checked
+    };
+    var genderType = {
+        boys: document.getElementById('filter-boys').checked,
+        girls: document.getElementById('filter-girls').checked,
+        coed: document.getElementById('filter-coed').checked
+    };
+
+    var layers = [layer_school_girls_1, layer_school_boys_2, layer_school_coed_3];
+    layers.forEach(function (layerGroup) {
+        layerGroup.eachLayer(function (layer) {
+            if (layer.feature.properties['MOE_years'] !== null && layer.feature.properties['MOE_gender'] !== null) {
+                var currentSchoolType = 'Other';
+                if (layer.feature.properties['MOE_years'].includes("1-6") || layer.feature.properties['MOE_years'].includes("1-8")) {
+                    currentSchoolType = 'Primary';
+                } else if (layer.feature.properties['MOE_years'].includes("7-13") || layer.feature.properties['MOE_years'].includes("9-13")) {
+                    currentSchoolType = 'Secondary';
+                }
+
+                var isVisible = (schoolType[currentSchoolType] || Object.values(schoolType).every(v => !v)) &&
+                                (genderType[layer.feature.properties['MOE_gender']] || Object.values(genderType).every(v => !v));
+
+                if (isVisible) {
+                    layer.addTo(map);
+                } else {
+                    map.removeLayer(layer);
+                }
+            }
         });
+    });
+}
+
+//These are the layer object names that we need to add to filtering option to remove/add to the map.
+//json_bus_stop_6, json_park_4, json_amenity_parking_5
+
+//center map view to Auckland
+var centreMap  = L.Control.extend({
+    options: {
+        position: 'topright'
+    },
+    onAdd: function (map) {
+        var container = L.DomUtil.create('div', 'center-auckland-container');
+        container.innerHTML = '<button id="center-auckland-btn">Center to Auckland</button>';
+
+        container.onclick = function (e) {
+            L.DomEvent.stopPropagation(e);
+            //set the map view to the center of Auckland, zoom level of 10
+            map.setView([-36.8485, 174.7633], 10);
+        };
+
+        return container;
+    }
+});
+map.addControl(new centreMap ());
         </script>
     </body>
 </html>
