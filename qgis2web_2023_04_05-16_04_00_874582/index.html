@@ -12,6 +12,8 @@
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" integrity="sha512-rl5BC8z6W9Gv7gBZD5M6i8uFw4Koi3kmegAu1GUVVpKnRkW0SvDF2vnuyFNzYgP+k8eH4j7fzmG+18yjnM6Rng==" crossorigin=""/>
         <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha384-b5HzkYZa0LeP5oQd6Jn1X9jIXFzYQuhf+Jv6eWXYn8nU6j+amFFZvAzfmaWJX8Tb" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
         <style>
         #map {
             width: 1360px;
@@ -43,6 +45,8 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js" integrity="sha512-wvBZD6EYf+du8MwOss+gxwejJccfexNYOmVT2Ro0X+OaOJjKWez1fR8OhRt0xvQ2L0JhPjzTlTqah3ylz0VKgA==" crossorigin=""></script>
         <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
         <script type="text/javascript" src="./js/leaflet-seacher.js"></script>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha384-jyexylFsW8XsRc1sJBKBQvZsKsWTPxzeoikAXC0JVTy+/TI0RPQ2XRSURb6voLxD" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
         <script>
         var highlightLayer;
         function highlightFeature(e) {
@@ -980,8 +984,8 @@
             onEachFeature: pop_park_4,
             style: style_park_4_0,
         });
-        bounds_group.addLayer(layer_park_4);
-        map.addLayer(layer_park_4);
+        // bounds_group.addLayer(layer_park_4);
+        // map.addLayer(layer_park_4);
         function pop_amenity_parking_5(feature, layer) {
             layer.on({
                 mouseout: function(e) {
@@ -1077,8 +1081,8 @@
             onEachFeature: pop_amenity_parking_5,
             style: style_amenity_parking_5_0,
         });
-        bounds_group.addLayer(layer_amenity_parking_5);
-        map.addLayer(layer_amenity_parking_5);
+        // bounds_group.addLayer(layer_amenity_parking_5);
+        // map.addLayer(layer_amenity_parking_5);
         function pop_bus_stop_6(feature, layer) {
             layer.on({
                 mouseout: function(e) {
@@ -1322,8 +1326,8 @@
                 return L.circleMarker(latlng, style_bus_stop_6_0(feature));
             },
         });
-        bounds_group.addLayer(layer_bus_stop_6);
-        map.addLayer(layer_bus_stop_6);
+        // bounds_group.addLayer(layer_bus_stop_6);
+        // map.addLayer(layer_bus_stop_6);
         setBounds();
 
         // 创建一个搜索控件并添加到地图中
@@ -1369,10 +1373,10 @@ var filterControl = L.Control.extend({
                 '<input type="checkbox" id="filter-boys" value="boys"> Boys Schools<br>' +
                 '<input type="checkbox" id="filter-girls" value="girls"> Girls Schools<br>' +
                 '<input type="checkbox" id="filter-coed" value="coed"> Coed Schools<br>'+
-                '<hr>' //+
-                //'<input type="checkbox" id="filter-busstops" value="busstops"> Bus Stops<br>' +
-                //'<input type="checkbox" id="filter-parks" value="parks"> Parks<br>' +
-                //'<input type="checkbox" id="filter-parkingspaces" value="parkingspaces"> Parking Spaces<br>'
+                '<hr>' +
+                '<input type="checkbox" id="filter-busstops" value="busstops"> Bus Stops<br>' +
+                '<input type="checkbox" id="filter-parks" value="parks"> Parks<br>' +
+                '<input type="checkbox" id="filter-parkingspaces" value="parkingspaces"> Parking Spaces<br>'
             );
 
 
@@ -1386,12 +1390,51 @@ var filterControl = L.Control.extend({
                 document.getElementById('filter-boys').addEventListener('change', updateSchoolsLayer);
                 document.getElementById('filter-girls').addEventListener('change', updateSchoolsLayer);
                 document.getElementById('filter-coed').addEventListener('change', updateSchoolsLayer);
+                document.getElementById('filter-busstops').addEventListener('change', updateMap);
+                document.getElementById('filter-parks').addEventListener('change', updateMap);
+                document.getElementById('filter-parkingspaces').addEventListener('change', updateMap);
             };
 
         return container;
         }
 });
 map.addControl(new filterControl());
+
+function updateMap() {
+     var busstops = document.getElementById('filter-busstops').checked
+     var parks = document.getElementById('filter-parks').checked
+     var parkingspaces = document.getElementById('filter-parkingspaces').checked
+    
+
+
+    if (busstops) {
+        // bounds_group.addLayer(layer_bus_stop_6);
+        layer_bus_stop_6.addTo(map);
+        // map.addLayer(layer_bus_stop_6);
+    } else {
+        // bounds_group.removeLayer(layer_bus_stop_6)
+        map.removeLayer(layer_bus_stop_6)
+     }
+
+     if (parks) {
+        // bounds_group.addLayer(layer_bus_stop_6);
+        layer_park_4.addTo(map);
+        // map.addLayer(layer_bus_stop_6);
+    } else {
+        // bounds_group.removeLayer(layer_bus_stop_6)
+        map.removeLayer(layer_park_4)
+     }
+  
+     if (parkingspaces) {
+        // bounds_group.addLayer(layer_bus_stop_6);
+        layer_amenity_parking_5.addTo(map);
+        // map.addLayer(layer_bus_stop_6);
+    } else {
+        // bounds_group.removeLayer(layer_bus_stop_6)
+        map.removeLayer(layer_amenity_parking_5)
+     }
+
+}
 
 
 function updateSchoolsLayer() {
@@ -1405,7 +1448,7 @@ function updateSchoolsLayer() {
         girls: document.getElementById('filter-girls').checked,
         coed: document.getElementById('filter-coed').checked
     };
-
+   
     var layers = [layer_school_girls_1, layer_school_boys_2, layer_school_coed_3];
     layers.forEach(function (layerGroup) {
         layerGroup.eachLayer(function (layer) {
@@ -1418,9 +1461,10 @@ function updateSchoolsLayer() {
                 }
 
                 var isVisible = (schoolType[currentSchoolType] || Object.values(schoolType).every(v => !v)) &&
-                                (genderType[layer.feature.properties['MOE_gender']] || Object.values(genderType).every(v => !v));
+                                (genderType[layer.feature.properties['MOE_gender']] || Object.values(genderType).every(v => !v)) ;
 
                 if (isVisible) {
+                   
                     layer.addTo(map);
                 } else {
                     map.removeLayer(layer);
@@ -1429,6 +1473,7 @@ function updateSchoolsLayer() {
         });
     });
 }
+
 
 //These are the layer object names that we need to add to filtering option to remove/add to the map.
 //json_bus_stop_6, json_park_4, json_amenity_parking_5
@@ -1445,13 +1490,56 @@ var centreMap  = L.Control.extend({
         container.onclick = function (e) {
             L.DomEvent.stopPropagation(e);
             //set the map view to the center of Auckland, zoom level of 10
-            map.setView([-36.8485, 174.7633], 10);
+            map.setView([-36.8485, 174.7633], 12);
         };
 
         return container;
     }
 });
 map.addControl(new centreMap ());
+
+
+// var router = L.routing.osrmv1({
+//     serviceUrl: 'https://router.project-osrm.org/route/v1'
+// });
+
+
+// var control = L.Routing.control({
+//     router: router,
+//     plan: L.Routing.plan([], {
+//         createMarker: function(i, wp, nWps) {
+      
+//             return L.marker(wp.latLng, {
+//                 draggable: true,
+//                 icon: L.icon({
+//                     iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+//                     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+//                     iconSize: [25, 41],
+//                     iconAnchor: [12, 41]
+//                 })
+//             });
+//         },
+//         geocoder: L.Control.Geocoder.nominatim()
+//     }),
+//     // 设置路由方向图层的样式
+//     routeLine: function(route, options) {
+//         return L.polyline(route.geometry.coordinates, options);
+//     }
+// });
+
+// // 将控制器添加到地图中
+// control.addTo(map);
+
+// 将地图缩放到路线的视图范围
+control.on('routesfound', function(e) {
+    var bounds = e.routes[0].bounds;
+    map.fitBounds(bounds);
+});
+var savedSchools= [];
+
+function saveSchool(){
+    savedSchools.add()
+}
         </script>
     </body>
 </html>
