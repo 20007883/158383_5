@@ -14,24 +14,39 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha384-b5HzkYZa0LeP5oQd6Jn1X9jIXFzYQuhf+Jv6eWXYn8nU6j+amFFZvAzfmaWJX8Tb" crossorigin="anonymous">
         <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+
+        <!-- JQuery school dropdown autocomplete -->
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+        <!-- Sørensen-Dice coefficient -->
+        <script src="https://cdn.jsdelivr.net/npm/string-similarity/umd/string-similarity.min.js"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.1/js.cookie.min.js"></script>
+
         <style>
         #map {
             width: 1360px;
             height: 844px;
-            /* position: relative; */
         }
-        #testnum {
-            width: 200px;
-            height: 200px;
-            
+        
+        /* school-dropdown */
+        .ui-autocomplete {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            cursor: default;
+            z-index: 1000;
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 5px;
         }
         </style>
         <title></title>
     </head>
     <body>
-        <!-- <div id="testnum"> 123456789 </div> -->
         <div id="map">
-        
         </div>
         <script src="js/qgis2web_expressions.js"></script>
         <script src="js/leaflet.js"></script>
@@ -53,11 +68,9 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js" integrity="sha512-wvBZD6EYf+du8MwOss+gxwejJccfexNYOmVT2Ro0X+OaOJjKWez1fR8OhRt0xvQ2L0JhPjzTlTqah3ylz0VKgA==" crossorigin=""></script>
         <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
         <script type="text/javascript" src="./js/leaflet-seacher.js"></script>
-        <script src="js/jquery-3.6.4.js" type="text/javascript" charset="utf-8"></script>
-
-        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha384-jyexylFsW8XsRc1sJBKBQvZsKsWTPxzeoikAXC0JVTy+/TI0RPQ2XRSURb6voLxD" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
         <script>
+
         var highlightLayer;
         function highlightFeature(e) {
             highlightLayer = e.target;
@@ -74,24 +87,16 @@
             }
         }
         var map = L.map('map', {
-            zoomControl:true, maxZoom:28, minZoom:1
+            zoomControl:true, maxZoom:28, minZoom:10
         }).fitBounds([[-36.89958510224771,174.72018369682814],[-36.881467668888305,174.7494039753342]]);
         var hash = new L.Hash(map);
         map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
         var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
-        var measureControl = new L.Control.Measure({
-            position: 'topleft',
-            primaryLengthUnit: 'meters',
-            secondaryLengthUnit: 'kilometers',
-            primaryAreaUnit: 'sqmeters',
-            secondaryAreaUnit: 'hectares'
-        });
-        measureControl.addTo(map);
-        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
-        .innerHTML = '';
-        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
-        .className += ' fas fa-ruler';
+
+
+
         var bounds_group = new L.featureGroup([]);
+
         function setBounds() {
         }
         map.createPane('pane_OSMStandard_0');
@@ -107,174 +112,70 @@
         });
         layer_OSMStandard_0;
         map.addLayer(layer_OSMStandard_0);
+
+                //school popup
         function pop_school_girls_1(feature, layer) {
-            layer.on({
+            layer.on({ 
                 mouseout: function(e) {
+                    // console.log("pop_school_girls_1 layer:", layer); 
+                    // console.log("pop_school_girls_1 feature:", feature); 
                     for (i in e.target._eventParents) {
                         e.target._eventParents[i].resetStyle(e.target);
                     }
                 },
                 mouseover: highlightFeature,
             });
-            // var popupContent = '<table>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['full_id'] !== null ? autolinker.link(feature.properties['full_id'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['osm_id'] !== null ? autolinker.link(feature.properties['osm_id'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['osm_type'] !== null ? autolinker.link(feature.properties['osm_type'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['amenity'] !== null ? autolinker.link(feature.properties['amenity'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name_ar'] !== null ? autolinker.link(feature.properties['name_ar'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['school_gen'] !== null ? autolinker.link(feature.properties['school_gen'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['operator_t'] !== null ? autolinker.link(feature.properties['operator_t'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['not_name'] !== null ? autolinker.link(feature.properties['not_name'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['contact_fa'] !== null ? autolinker.link(feature.properties['contact_fa'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['capacity'] !== null ? autolinker.link(feature.properties['capacity'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['natural'] !== null ? autolinker.link(feature.properties['natural'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['opening_da'] !== null ? autolinker.link(feature.properties['opening_da'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['pedagogy'] !== null ? autolinker.link(feature.properties['pedagogy'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['ref'] !== null ? autolinker.link(feature.properties['ref'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['descriptio'] !== null ? autolinker.link(feature.properties['descriptio'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['building_l'] !== null ? autolinker.link(feature.properties['building_l'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['addr_hamle'] !== null ? autolinker.link(feature.properties['addr_hamle'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['email'] !== null ? autolinker.link(feature.properties['email'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name_etymo'] !== null ? autolinker.link(feature.properties['name_etymo'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name_ety_1'] !== null ? autolinker.link(feature.properties['name_ety_1'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['barrier'] !== null ? autolinker.link(feature.properties['barrier'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['landuse'] !== null ? autolinker.link(feature.properties['landuse'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['wheelchair'] !== null ? autolinker.link(feature.properties['wheelchair'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['owner'] !== null ? autolinker.link(feature.properties['owner'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['operator'] !== null ? autolinker.link(feature.properties['operator'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['building_f'] !== null ? autolinker.link(feature.properties['building_f'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['grades'] !== null ? autolinker.link(feature.properties['grades'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['campus'] !== null ? autolinker.link(feature.properties['campus'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['start_date'] !== null ? autolinker.link(feature.properties['start_date'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name_mk'] !== null ? autolinker.link(feature.properties['name_mk'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['ref_linz_a'] !== null ? autolinker.link(feature.properties['ref_linz_a'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['addr_subur'] !== null ? autolinker.link(feature.properties['addr_subur'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['old_name'] !== null ? autolinker.link(feature.properties['old_name'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name_mi'] !== null ? autolinker.link(feature.properties['name_mi'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['building'] !== null ? autolinker.link(feature.properties['building'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['religion'] !== null ? autolinker.link(feature.properties['religion'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['denominati'] !== null ? autolinker.link(feature.properties['denominati'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['wikipedia'] !== null ? autolinker.link(feature.properties['wikipedia'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['alt_name'] !== null ? autolinker.link(feature.properties['alt_name'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['addr_city'] !== null ? autolinker.link(feature.properties['addr_city'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['wikidata'] !== null ? autolinker.link(feature.properties['wikidata'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['website'] !== null ? autolinker.link(feature.properties['website'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['type'] !== null ? autolinker.link(feature.properties['type'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['phone'] !== null ? autolinker.link(feature.properties['phone'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name'] !== null ? autolinker.link(feature.properties['name'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['addr_stree'] !== null ? autolinker.link(feature.properties['addr_stree'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['addr_postc'] !== null ? autolinker.link(feature.properties['addr_postc'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['addr_house'] !== null ? autolinker.link(feature.properties['addr_house'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['MOE_years'] !== null ? autolinker.link(feature.properties['MOE_years'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['MOE_id'] !== null ? autolinker.link(feature.properties['MOE_id'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['MOE_gender'] !== null ? autolinker.link(feature.properties['MOE_gender'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['MOE_author'] !== null ? autolinker.link(feature.properties['MOE_author'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //     </table>';
-            // layer.bindPopup(popupContent, {maxHeight: 400});
+
+            var addr = (feature.properties['addr_house'] !== null ? autolinker.link(feature.properties['addr_house'].toLocaleString()) : '') + ' ' + (feature.properties['addr_stree'] !== null ? autolinker.link(feature.properties['addr_stree'].toLocaleString()) : '') + ', Auckland ' + (feature.properties['addr_postc'] !== null ? autolinker.link(feature.properties['addr_postc'].toLocaleString()) : '')
+            var popupContent = '<h2>School Information</h2>' + '<table>'+
+                    '<tr>'+
+                        '<td colspan="2">' + (feature.properties['full_id'] !== null ? autolinker.link(feature.properties['full_id'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">' + (feature.properties['osm_id'] !== null ? autolinker.link(feature.properties['osm_id'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">Name: ' + (feature.properties['name'] !== null ? autolinker.link(feature.properties['name'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">Grades: ' + (feature.properties['MOE_years'] !== null ? autolinker.link(feature.properties['MOE_years'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">Gender: ' + (feature.properties['MOE_gender'] !== null ? autolinker.link(feature.properties['MOE_gender'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">Address: ' + addr + '</td>'+
+                    '</tr>';
+                    if(feature.properties['email'] !== null){
+                        popupContent+= '<tr>'+'<td colspan="2">Email: ' + (feature.properties['email'] !== null ? autolinker.link(feature.properties['email'].toLocaleString()) : '') + '</td>'+'</tr>'
+                    }
+                    if(feature.properties['religion'] !== null){
+                        popupContent+= '<tr>'+'<td colspan="2">Religion: ' + (feature.properties['religion'] !== null ? autolinker.link(feature.properties['religion'].toLocaleString()) : '') + '</td>'+'</tr>'
+                    }
+                    if(feature.properties['website'] !== null){
+                        popupContent+= '<tr>'+'<td colspan="2">Website: ' + (feature.properties['website'] !== null ? autolinker.link(feature.properties['website'].toLocaleString()) : '') + '</td>'+'</tr>'
+                    }
+                    if(feature.properties['phone'] !== null){
+                        popupContent+= '<tr>'+'<td colspan="2">Phone: ' + (feature.properties['phone'] !== null ? autolinker.link(feature.properties['phone'].toLocaleString()) : '') + '</td>'+'</tr>'
+                    }
+                    if (feature.properties.notes !== undefined) {
+                        popupContent += '<h3>Notes:</h3><p>' + feature.properties.notes + '</p>';
+                    }
+                    
+
+                    // Load notes from cookies
+                    var notesCookie = 'notes-' + feature.properties['osm_id'];
+                    feature.properties.notes = Cookies.get(notesCookie) || '';
+
+                    popupContent += '<tr><td colspan="2"><label for="notes-' + feature.properties['osm_id'] + '">Notes:</label></td></tr>';
+                    popupContent += '<tr><td colspan="2"><textarea id="notes-' + feature.properties['osm_id'] + '" style="width:100%;height:80px;resize:none">' + feature.properties.notes + '</textarea></td></tr>';
+                    popupContent += '<tr><td colspan="2"><button id="saveNotesButton-' + feature.properties['osm_id'] + '">Save</button></td></tr>';
+
+
+                    popupContent += '</table>';
+
+            layer.bindPopup(popupContent, { maxHeight: 400 });
+
         }
 
         function style_school_girls_1_0() {
@@ -295,211 +196,82 @@
         map.createPane('pane_school_girls_1');
         map.getPane('pane_school_girls_1').style.zIndex = 401;
         map.getPane('pane_school_girls_1').style['mix-blend-mode'] = 'normal';
-        // var layer_school_girls_1 = new L.geoJson(json_school_girls_1, {
-        //     attribution: '',
-        //     interactive: true,
-        //     dataVar: 'json_school_girls_1',
-        //     layerName: 'layer_school_girls_1',
-        //     pane: 'pane_school_girls_1',
-        //     onEachFeature: pop_school_girls_1,
-        //     style: style_school_girls_1_0,
-        // });
-        var layer_school_girls_1 = new L.geoJson()
-        $.ajax({
-            type:"get",
-            url: 'http://127.0.0.1:5000/data/girlschool',
-            dataType: 'json',
-            async: false,
-            success: function (data) {
-                console.log(data)
-                layer_school_girls_1 = L.geoJSON(data, {
-                    attribution: '',
-                    interactive: true,
-                    layerName: 'layer_school_girls_1',
-                    pane: 'pane_school_girls_1',
-                    onEachFeature: pop_school_girls_1,
-                    style: style_school_girls_1_0,
-                })
-                console.log(2)
-                console.log(layer_school_girls_1)
-
-            },
-            error: function (xhr, status, error) {
-                console.log('Ajax Fail: ' + error);
-            }
+        var layer_school_girls_1 = new L.geoJson(json_school_girls_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_school_girls_1',
+            layerName: 'layer_school_girls_1',
+            pane: 'pane_school_girls_1',
+            onEachFeature: pop_school_girls_1,
+            style: style_school_girls_1_0,
         });
-        
-        // bounds_group.addLayer(layer_school_girls_1);
-        // map.addLayer(layer_school_girls_1);
+        bounds_group.addLayer(layer_school_girls_1);
+        map.addLayer(layer_school_girls_1);
 
+
+        //boys school popup
         function pop_school_boys_2(feature, layer) {
-            layer.on({
+            layer.on({ 
                 mouseout: function(e) {
+                    // console.log("pop_school_boys_2 layer:", layer); 
+                    // console.log("pop_school_boys_2 feature:", feature); 
                     for (i in e.target._eventParents) {
                         e.target._eventParents[i].resetStyle(e.target);
                     }
                 },
                 mouseover: highlightFeature,
             });
-        //     var popupContent = '<table>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['full_id'] !== null ? autolinker.link(feature.properties['full_id'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['osm_id'] !== null ? autolinker.link(feature.properties['osm_id'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['osm_type'] !== null ? autolinker.link(feature.properties['osm_type'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['amenity'] !== null ? autolinker.link(feature.properties['amenity'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['name_ar'] !== null ? autolinker.link(feature.properties['name_ar'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['school_gen'] !== null ? autolinker.link(feature.properties['school_gen'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['operator_t'] !== null ? autolinker.link(feature.properties['operator_t'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['not_name'] !== null ? autolinker.link(feature.properties['not_name'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['contact_fa'] !== null ? autolinker.link(feature.properties['contact_fa'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['capacity'] !== null ? autolinker.link(feature.properties['capacity'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['natural'] !== null ? autolinker.link(feature.properties['natural'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['opening_da'] !== null ? autolinker.link(feature.properties['opening_da'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['pedagogy'] !== null ? autolinker.link(feature.properties['pedagogy'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['ref'] !== null ? autolinker.link(feature.properties['ref'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['descriptio'] !== null ? autolinker.link(feature.properties['descriptio'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['building_l'] !== null ? autolinker.link(feature.properties['building_l'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['addr_hamle'] !== null ? autolinker.link(feature.properties['addr_hamle'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['email'] !== null ? autolinker.link(feature.properties['email'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['name_etymo'] !== null ? autolinker.link(feature.properties['name_etymo'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['name_ety_1'] !== null ? autolinker.link(feature.properties['name_ety_1'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['barrier'] !== null ? autolinker.link(feature.properties['barrier'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['landuse'] !== null ? autolinker.link(feature.properties['landuse'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['wheelchair'] !== null ? autolinker.link(feature.properties['wheelchair'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['owner'] !== null ? autolinker.link(feature.properties['owner'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['operator'] !== null ? autolinker.link(feature.properties['operator'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['building_f'] !== null ? autolinker.link(feature.properties['building_f'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['grades'] !== null ? autolinker.link(feature.properties['grades'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['campus'] !== null ? autolinker.link(feature.properties['campus'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['start_date'] !== null ? autolinker.link(feature.properties['start_date'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['name_mk'] !== null ? autolinker.link(feature.properties['name_mk'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['ref_linz_a'] !== null ? autolinker.link(feature.properties['ref_linz_a'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['addr_subur'] !== null ? autolinker.link(feature.properties['addr_subur'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['old_name'] !== null ? autolinker.link(feature.properties['old_name'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['name_mi'] !== null ? autolinker.link(feature.properties['name_mi'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['building'] !== null ? autolinker.link(feature.properties['building'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['religion'] !== null ? autolinker.link(feature.properties['religion'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['denominati'] !== null ? autolinker.link(feature.properties['denominati'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['wikipedia'] !== null ? autolinker.link(feature.properties['wikipedia'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['alt_name'] !== null ? autolinker.link(feature.properties['alt_name'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['addr_city'] !== null ? autolinker.link(feature.properties['addr_city'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['wikidata'] !== null ? autolinker.link(feature.properties['wikidata'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['website'] !== null ? autolinker.link(feature.properties['website'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['type'] !== null ? autolinker.link(feature.properties['type'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['phone'] !== null ? autolinker.link(feature.properties['phone'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['name'] !== null ? autolinker.link(feature.properties['name'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['addr_stree'] !== null ? autolinker.link(feature.properties['addr_stree'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['addr_postc'] !== null ? autolinker.link(feature.properties['addr_postc'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['addr_house'] !== null ? autolinker.link(feature.properties['addr_house'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['MOE_years'] !== null ? autolinker.link(feature.properties['MOE_years'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['MOE_id'] !== null ? autolinker.link(feature.properties['MOE_id'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['MOE_gender'] !== null ? autolinker.link(feature.properties['MOE_gender'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['MOE_author'] !== null ? autolinker.link(feature.properties['MOE_author'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //         </table>';
-        //     layer.bindPopup(popupContent, {maxHeight: 400});
+            
+            var addr = (feature.properties['addr_house'] !== null ? autolinker.link(feature.properties['addr_house'].toLocaleString()) : '') + ' ' + (feature.properties['addr_stree'] !== null ? autolinker.link(feature.properties['addr_stree'].toLocaleString()) : '') + ', Auckland ' + (feature.properties['addr_postc'] !== null ? autolinker.link(feature.properties['addr_postc'].toLocaleString()) : '')
+
+            var popupContent = '<h2>School Information</h2>' +'<table>'+
+                    '<tr>'+
+                        '<td colspan="2">' + (feature.properties['full_id'] !== null ? autolinker.link(feature.properties['full_id'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">' + (feature.properties['osm_id'] !== null ? autolinker.link(feature.properties['osm_id'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">Name: ' + (feature.properties['name'] !== null ? autolinker.link(feature.properties['name'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">Grades: ' + (feature.properties['MOE_years'] !== null ? autolinker.link(feature.properties['MOE_years'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">Gender: ' + (feature.properties['MOE_gender'] !== null ? autolinker.link(feature.properties['MOE_gender'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">Address: ' + addr + '</td>'+
+                    '</tr>';
+                    if(feature.properties['email'] !== null){
+                        popupContent+= '<tr>'+'<td colspan="2">Email: ' + (feature.properties['email'] !== null ? autolinker.link(feature.properties['email'].toLocaleString()) : '') + '</td>'+'</tr>'
+                    }
+                    if(feature.properties['religion'] !== null){
+                        popupContent+= '<tr>'+'<td colspan="2">Religion: ' + (feature.properties['religion'] !== null ? autolinker.link(feature.properties['religion'].toLocaleString()) : '') + '</td>'+'</tr>'
+                    }
+                    if(feature.properties['website'] !== null){
+                        popupContent+= '<tr>'+'<td colspan="2">Website: ' + (feature.properties['website'] !== null ? autolinker.link(feature.properties['website'].toLocaleString()) : '') + '</td>'+'</tr>'
+                    }
+                    if(feature.properties['phone'] !== null){
+                        popupContent+= '<tr>'+'<td colspan="2">Phone: ' + (feature.properties['phone'] !== null ? autolinker.link(feature.properties['phone'].toLocaleString()) : '') + '</td>'+'</tr>'
+                    }
+                    if (feature.properties.notes !== undefined) {
+                        popupContent += '<h3>Notes:</h3><p>' + feature.properties.notes + '</p>';
+                    }
+                    
+
+                    // Load notes from cookies
+                    var notesCookie = 'notes-' + feature.properties['osm_id'];
+                    feature.properties.notes = Cookies.get(notesCookie) || '';
+
+                    popupContent += '<tr><td colspan="2"><label for="notes-' + feature.properties['osm_id'] + '">Notes:</label></td></tr>';
+                    popupContent += '<tr><td colspan="2"><textarea id="notes-' + feature.properties['osm_id'] + '" style="width:100%;height:80px;resize:none">' + feature.properties.notes + '</textarea></td></tr>';
+                    popupContent += '<tr><td colspan="2"><button id="saveNotesButton-' + feature.properties['osm_id'] + '">Save</button></td></tr>';
+
+
+                    popupContent += '</table>';
+
+            layer.bindPopup(popupContent, { maxHeight: 400 });
         }
 
         function style_school_boys_2_0() {
@@ -520,208 +292,99 @@
         map.createPane('pane_school_boys_2');
         map.getPane('pane_school_boys_2').style.zIndex = 402;
         map.getPane('pane_school_boys_2').style['mix-blend-mode'] = 'normal';
-        var layer_school_boys_2 = new L.geoJson()
-        // var layer_school_boys_2 = new L.geoJson(json_school_boys_2, {
-        //     attribution: '',
-        //     interactive: true,
-        //     dataVar: 'json_school_boys_2',
-        //     layerName: 'layer_school_boys_2',
-        //     pane: 'pane_school_boys_2',
-        //     onEachFeature: pop_school_boys_2,
-        //     style: style_school_boys_2_0,
-        // });
-
-        $.ajax({
-            type:"get",
-            url: 'http://127.0.0.1:5000/data/boyschool',
-            dataType: 'json',
-            async: false,
-            success: function (data) {
-                console.log(data)
-                layer_school_boys_2 = L.geoJSON(data, {
-                    attribution: '',
-                    interactive: true,
-                    layerName: 'layer_school_boys_2',
-                    pane: 'pane_school_boys_2',
-                    onEachFeature: pop_school_boys_2,
-                    style: style_school_boys_2_0,
-                })
-            },
-            error: function (xhr, status, error) {
-                console.log('Ajax Fail: ' + error);
-            }
+        var layer_school_boys_2 = new L.geoJson(json_school_boys_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_school_boys_2',
+            layerName: 'layer_school_boys_2',
+            pane: 'pane_school_boys_2',
+            onEachFeature: pop_school_boys_2,
+            style: style_school_boys_2_0,
         });
-        // bounds_group.addLayer(layer_school_boys_2);
-        // map.addLayer(layer_school_boys_2);
+        bounds_group.addLayer(layer_school_boys_2);
+        map.addLayer(layer_school_boys_2);
+
+        //coed school popup
         function pop_school_coed_3(feature, layer) {
-            layer.on({
+
+            layer.on({ 
                 mouseout: function(e) {
+                    // console.log("pop_school_coed_3 layer:", layer); 
+                    // console.log("pop_school_coed_3 feature:", feature); 
                     for (i in e.target._eventParents) {
                         e.target._eventParents[i].resetStyle(e.target);
                     }
                 },
                 mouseover: highlightFeature,
             });
-        //     var popupContent = '<table>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['full_id'] !== null ? autolinker.link(feature.properties['full_id'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['osm_id'] !== null ? autolinker.link(feature.properties['osm_id'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['osm_type'] !== null ? autolinker.link(feature.properties['osm_type'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['amenity'] !== null ? autolinker.link(feature.properties['amenity'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['name_ar'] !== null ? autolinker.link(feature.properties['name_ar'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['school_gen'] !== null ? autolinker.link(feature.properties['school_gen'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['operator_t'] !== null ? autolinker.link(feature.properties['operator_t'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['not_name'] !== null ? autolinker.link(feature.properties['not_name'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['contact_fa'] !== null ? autolinker.link(feature.properties['contact_fa'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['capacity'] !== null ? autolinker.link(feature.properties['capacity'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['natural'] !== null ? autolinker.link(feature.properties['natural'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['opening_da'] !== null ? autolinker.link(feature.properties['opening_da'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['pedagogy'] !== null ? autolinker.link(feature.properties['pedagogy'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['ref'] !== null ? autolinker.link(feature.properties['ref'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['descriptio'] !== null ? autolinker.link(feature.properties['descriptio'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['building_l'] !== null ? autolinker.link(feature.properties['building_l'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['addr_hamle'] !== null ? autolinker.link(feature.properties['addr_hamle'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['email'] !== null ? autolinker.link(feature.properties['email'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['name_etymo'] !== null ? autolinker.link(feature.properties['name_etymo'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['name_ety_1'] !== null ? autolinker.link(feature.properties['name_ety_1'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['barrier'] !== null ? autolinker.link(feature.properties['barrier'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['landuse'] !== null ? autolinker.link(feature.properties['landuse'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['wheelchair'] !== null ? autolinker.link(feature.properties['wheelchair'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['owner'] !== null ? autolinker.link(feature.properties['owner'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['operator'] !== null ? autolinker.link(feature.properties['operator'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['building_f'] !== null ? autolinker.link(feature.properties['building_f'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['grades'] !== null ? autolinker.link(feature.properties['grades'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['campus'] !== null ? autolinker.link(feature.properties['campus'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['start_date'] !== null ? autolinker.link(feature.properties['start_date'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['name_mk'] !== null ? autolinker.link(feature.properties['name_mk'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['ref_linz_a'] !== null ? autolinker.link(feature.properties['ref_linz_a'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['addr_subur'] !== null ? autolinker.link(feature.properties['addr_subur'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['old_name'] !== null ? autolinker.link(feature.properties['old_name'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['name_mi'] !== null ? autolinker.link(feature.properties['name_mi'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['building'] !== null ? autolinker.link(feature.properties['building'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['religion'] !== null ? autolinker.link(feature.properties['religion'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['denominati'] !== null ? autolinker.link(feature.properties['denominati'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['wikipedia'] !== null ? autolinker.link(feature.properties['wikipedia'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['alt_name'] !== null ? autolinker.link(feature.properties['alt_name'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['addr_city'] !== null ? autolinker.link(feature.properties['addr_city'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['wikidata'] !== null ? autolinker.link(feature.properties['wikidata'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['website'] !== null ? autolinker.link(feature.properties['website'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['type'] !== null ? autolinker.link(feature.properties['type'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['phone'] !== null ? autolinker.link(feature.properties['phone'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['name'] !== null ? autolinker.link(feature.properties['name'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['addr_stree'] !== null ? autolinker.link(feature.properties['addr_stree'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['addr_postc'] !== null ? autolinker.link(feature.properties['addr_postc'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['addr_house'] !== null ? autolinker.link(feature.properties['addr_house'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['MOE_years'] !== null ? autolinker.link(feature.properties['MOE_years'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['MOE_id'] !== null ? autolinker.link(feature.properties['MOE_id'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['MOE_gender'] !== null ? autolinker.link(feature.properties['MOE_gender'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //             <tr>\
-        //                 <td colspan="2">' + (feature.properties['MOE_author'] !== null ? autolinker.link(feature.properties['MOE_author'].toLocaleString()) : '') + '</td>\
-        //             </tr>\
-        //         </table>';
-        //     layer.bindPopup(popupContent, {maxHeight: 400});
+
+            var addr = (feature.properties['addr_house'] !== null ? autolinker.link(feature.properties['addr_house'].toLocaleString()) : '') + ' ' + (feature.properties['addr_stree'] !== null ? autolinker.link(feature.properties['addr_stree'].toLocaleString()) : '') + ', Auckland ' + (feature.properties['addr_postc'] !== null ? autolinker.link(feature.properties['addr_postc'].toLocaleString()) : '')
+            var popupContent = '<h2>School Information</h2>' +'<table>'+
+                    '<tr>'+ //All features have these properties present
+                        '<td colspan="2">' + (feature.properties['full_id'] !== null ? autolinker.link(feature.properties['full_id'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">' + (feature.properties['osm_id'] !== null ? autolinker.link(feature.properties['osm_id'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">Name: ' + (feature.properties['name'] !== null ? autolinker.link(feature.properties['name'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">Grades: ' + (feature.properties['MOE_years'] !== null ? autolinker.link(feature.properties['MOE_years'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">Gender: ' + (feature.properties['MOE_gender'] !== null ? autolinker.link(feature.properties['MOE_gender'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">Address: ' + addr + '</td>'+
+                    '</tr>';
+                    //if the property is not null, put it in the popup. 
+                    if(feature.properties['email'] !== null){
+                        popupContent+= '<tr>'+'<td colspan="2">Email: ' + (feature.properties['email'] !== null ? autolinker.link(feature.properties['email'].toLocaleString()) : '') + '</td>'+'</tr>'
+                    }
+                    if(feature.properties['religion'] !== null){
+                        popupContent+= '<tr>'+'<td colspan="2">Religion: ' + (feature.properties['religion'] !== null ? autolinker.link(feature.properties['religion'].toLocaleString()) : '') + '</td>'+'</tr>'
+                    }
+                    if(feature.properties['website'] !== null){
+                        popupContent+= '<tr>'+'<td colspan="2">Website: ' + (feature.properties['website'] !== null ? autolinker.link(feature.properties['website'].toLocaleString()) : '') + '</td>'+'</tr>'
+                    }
+                    if(feature.properties['phone'] !== null){
+                        popupContent+= '<tr>'+'<td colspan="2">Phone: ' + (feature.properties['phone'] !== null ? autolinker.link(feature.properties['phone'].toLocaleString()) : '') + '</td>'+'</tr>'
+                    }
+                    if (feature.properties.notes !== undefined) {
+                        popupContent += '<h3>Notes:</h3><p>' + feature.properties.notes + '</p>';
+                    }
+                    
+
+                    // Load notes from cookies
+                    var notesCookie = 'notes-' + feature.properties['osm_id'];
+                    feature.properties.notes = Cookies.get(notesCookie) || '';
+
+                    popupContent += '<tr><td colspan="2"><label for="notes-' + feature.properties['osm_id'] + '">Notes:</label></td></tr>';
+                    popupContent += '<tr><td colspan="2"><textarea id="notes-' + feature.properties['osm_id'] + '" style="width:100%;height:80px;resize:none">' + feature.properties.notes + '</textarea></td></tr>';
+                    popupContent += '<tr><td colspan="2"><button id="saveNotesButton-' + feature.properties['osm_id'] + '">Save</button></td></tr>';
+                    popupContent += '</table>';
+
+            layer.bindPopup(popupContent, { maxHeight: 400 });
+
         }
+
+
+        function saveNotes(layer, feature) {
+            // console.log("saveNotes layer:", layer); 
+            // console.log("saveNotes feature:", feature); 
+
+            var notes = document.getElementById("notes-" + feature.properties['osm_id']).value;
+            console.log(notes);
+            feature.properties.notes = notes;
+
+            // Save notes to cookies
+            var notesCookie = 'notes-' + feature.properties['osm_id'];
+            Cookies.set(notesCookie, notes);
+
+            layer.getPopup()._close();
+        }
+
 
         function style_school_coed_3_0() {
             return {
@@ -741,40 +404,68 @@
         map.createPane('pane_school_coed_3');
         map.getPane('pane_school_coed_3').style.zIndex = 403;
         map.getPane('pane_school_coed_3').style['mix-blend-mode'] = 'normal';
-        var layer_school_coed_3 = new L.geoJson();
-        // var layer_school_coed_3 = new L.geoJson(json_school_coed_3, {
-        //     attribution: '',
-        //     interactive: true,
-        //     dataVar: 'json_school_coed_3',
-        //     layerName: 'layer_school_coed_3',
-        //     pane: 'pane_school_coed_3',
-        //     onEachFeature: pop_school_coed_3,
-        //     style: style_school_coed_3_0,
-        // });
 
-        $.ajax({
-            type:"get",
-            url: 'http://127.0.0.1:5000/data/coedschool',
-            dataType: 'json',
-            async: false,
-            success: function (data) {
-                console.log(data)
-                layer_school_coed_3 = L.geoJSON(data, {
-                    attribution: '',
-                    interactive: true,
-                    layerName: 'layer_school_coed_3',
-                    pane: 'pane_school_coed_3',
-                    onEachFeature: pop_school_coed_3,
-                    style: style_school_coed_3_0,
-                })
-            },
-            error: function (xhr, status, error) {
-                console.log('Ajax Fail: ' + error);
-            }
-        });
+        var layer_school_coed_3 = new L.geoJson(json_school_coed_3, {
+    attribution: '',
+    interactive: true,
+    dataVar: 'json_school_coed_3',
+    layerName: 'layer_school_coed_3',
+    pane: 'pane_school_coed_3',
+    onEachFeature: function(feature, layer) {
+        if (!feature.properties.note) {
+            feature.properties.note = '';
+        }
+        pop_school_coed_3(feature, layer);
+    },
+    style: style_school_coed_3_0,
+});
+        bounds_group.addLayer(layer_school_coed_3);
+        map.addLayer(layer_school_coed_3);
 
-        // bounds_group.addLayer(layer_school_coed_3);
-        // map.addLayer(layer_school_coed_3);
+
+    // map.on('popupopen', function (e) {
+    //     var layer = e.popup._source;
+    //     var feature = layer.feature;
+
+    //     // update the textarea with the saved notes
+    //     var notesTextarea = document.getElementById("notes-" + feature.properties['osm_id']);
+    //     notesTextarea.value = feature.properties.notes;
+
+    //     // set focus on the textarea
+    //     notesTextarea.focus();
+
+    //     // click event for the "Save" button
+    //     var saveNotesButton = document.getElementById("saveNotesButton-" + feature.properties['osm_id']);
+    //     saveNotesButton.onclick = function () {
+    //         saveNotes(layer, feature);
+    //     };
+    // });
+
+
+    map.on('popupopen', function (e) {
+  var layer = e.popup._source;
+
+  // if the layer has a feature property before accessing it, prevents navigation popup error
+  if (layer && layer.feature) {
+    var feature = layer.feature;
+
+    // update the textarea with the saved notes
+    var notesTextarea = document.getElementById("notes-" + feature.properties['osm_id']);
+    notesTextarea.value = feature.properties.notes;
+
+    // set focus on the textarea
+    notesTextarea.focus();
+
+    // click event for the "Save" button
+    var saveNotesButton = document.getElementById("saveNotesButton-" + feature.properties['osm_id']);
+    saveNotesButton.onclick = function () {
+      saveNotes(layer, feature);
+    };
+  }
+});
+
+        
+        
         function pop_park_4(feature, layer) {
             layer.on({
                 mouseout: function(e) {
@@ -784,258 +475,15 @@
                 },
                 mouseover: highlightFeature,
             });
-            // var popupContent = '<table>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['full_id'] !== null ? autolinker.link(feature.properties['full_id'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['osm_id'] !== null ? autolinker.link(feature.properties['osm_id'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['osm_type'] !== null ? autolinker.link(feature.properties['osm_type'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['leisure'] !== null ? autolinker.link(feature.properties['leisure'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['proposed_l'] !== null ? autolinker.link(feature.properties['proposed_l'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['pedagogy'] !== null ? autolinker.link(feature.properties['pedagogy'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name_zh'] !== null ? autolinker.link(feature.properties['name_zh'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['industrial'] !== null ? autolinker.link(feature.properties['industrial'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['addr_hamle'] !== null ? autolinker.link(feature.properties['addr_hamle'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['constructi'] !== null ? autolinker.link(feature.properties['constructi'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name_wikip'] !== null ? autolinker.link(feature.properties['name_wikip'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['last_renov'] !== null ? autolinker.link(feature.properties['last_renov'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['noname'] !== null ? autolinker.link(feature.properties['noname'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['inscriptio'] !== null ? autolinker.link(feature.properties['inscriptio'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name_wikid'] !== null ? autolinker.link(feature.properties['name_wikid'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['hearing_lo'] !== null ? autolinker.link(feature.properties['hearing_lo'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['capacity'] !== null ? autolinker.link(feature.properties['capacity'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name_etymo'] !== null ? autolinker.link(feature.properties['name_etymo'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['surface'] !== null ? autolinker.link(feature.properties['surface'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['covered'] !== null ? autolinker.link(feature.properties['covered'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['water'] !== null ? autolinker.link(feature.properties['water'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['tourism'] !== null ? autolinker.link(feature.properties['tourism'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['building'] !== null ? autolinker.link(feature.properties['building'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['source_ref'] !== null ? autolinker.link(feature.properties['source_ref'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['attributio'] !== null ? autolinker.link(feature.properties['attributio'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['LINZ_sourc'] !== null ? autolinker.link(feature.properties['LINZ_sourc'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['LINZ_layer'] !== null ? autolinker.link(feature.properties['LINZ_layer'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['LINZ_datas'] !== null ? autolinker.link(feature.properties['LINZ_datas'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['hazard'] !== null ? autolinker.link(feature.properties['hazard'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['contaminat'] !== null ? autolinker.link(feature.properties['contaminat'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['lit'] !== null ? autolinker.link(feature.properties['lit'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['alt_name_m'] !== null ? autolinker.link(feature.properties['alt_name_m'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['openfire'] !== null ? autolinker.link(feature.properties['openfire'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['amenity'] !== null ? autolinker.link(feature.properties['amenity'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['small_dog'] !== null ? autolinker.link(feature.properties['small_dog'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['old_name'] !== null ? autolinker.link(feature.properties['old_name'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['descriptio'] !== null ? autolinker.link(feature.properties['descriptio'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['smoking'] !== null ? autolinker.link(feature.properties['smoking'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['opening_ho'] !== null ? autolinker.link(feature.properties['opening_ho'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['barrier'] !== null ? autolinker.link(feature.properties['barrier'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['ref_linz_a'] !== null ? autolinker.link(feature.properties['ref_linz_a'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['addr_subur'] !== null ? autolinker.link(feature.properties['addr_subur'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['addr_stree'] !== null ? autolinker.link(feature.properties['addr_stree'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['addr_postc'] !== null ? autolinker.link(feature.properties['addr_postc'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['addr_house'] !== null ? autolinker.link(feature.properties['addr_house'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['addr_city'] !== null ? autolinker.link(feature.properties['addr_city'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['access'] !== null ? autolinker.link(feature.properties['access'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['old_name_m'] !== null ? autolinker.link(feature.properties['old_name_m'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['official_n'] !== null ? autolinker.link(feature.properties['official_n'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['sport'] !== null ? autolinker.link(feature.properties['sport'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['source_nam'] !== null ? autolinker.link(feature.properties['source_nam'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['loc_name'] !== null ? autolinker.link(feature.properties['loc_name'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['alt_name_1'] !== null ? autolinker.link(feature.properties['alt_name_1'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['opening__1'] !== null ? autolinker.link(feature.properties['opening__1'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['landuse'] !== null ? autolinker.link(feature.properties['landuse'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['foot'] !== null ? autolinker.link(feature.properties['foot'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['phone'] !== null ? autolinker.link(feature.properties['phone'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['historic'] !== null ? autolinker.link(feature.properties['historic'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['alt_name_c'] !== null ? autolinker.link(feature.properties['alt_name_c'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['sorting_na'] !== null ? autolinker.link(feature.properties['sorting_na'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['website'] !== null ? autolinker.link(feature.properties['website'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['protection'] !== null ? autolinker.link(feature.properties['protection'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['protect_cl'] !== null ? autolinker.link(feature.properties['protect_cl'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['natural'] !== null ? autolinker.link(feature.properties['natural'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['boundary'] !== null ? autolinker.link(feature.properties['boundary'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['alt_name'] !== null ? autolinker.link(feature.properties['alt_name'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['wikipedia'] !== null ? autolinker.link(feature.properties['wikipedia'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['wikidata'] !== null ? autolinker.link(feature.properties['wikidata'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['start_date'] !== null ? autolinker.link(feature.properties['start_date'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name_mk'] !== null ? autolinker.link(feature.properties['name_mk'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name_ja'] !== null ? autolinker.link(feature.properties['name_ja'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name_ety_1'] !== null ? autolinker.link(feature.properties['name_ety_1'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name_ety_2'] !== null ? autolinker.link(feature.properties['name_ety_2'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name_cs'] !== null ? autolinker.link(feature.properties['name_cs'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['operator_w'] !== null ? autolinker.link(feature.properties['operator_w'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['operator_1'] !== null ? autolinker.link(feature.properties['operator_1'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['operator_t'] !== null ? autolinker.link(feature.properties['operator_t'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['operator'] !== null ? autolinker.link(feature.properties['operator'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name_mi'] !== null ? autolinker.link(feature.properties['name_mi'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name_en'] !== null ? autolinker.link(feature.properties['name_en'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['type'] !== null ? autolinker.link(feature.properties['type'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name'] !== null ? autolinker.link(feature.properties['name'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['dog'] !== null ? autolinker.link(feature.properties['dog'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //     </table>';
-            // layer.bindPopup(popupContent, {maxHeight: 400});
+            var popupContent = '<table>'
+                    if(feature.properties['name'] !== null){
+                        popupContent+='<tr><td colspan="2">Name: ' + (feature.properties['name'] !== null ? autolinker.link(feature.properties['name'].toLocaleString()) : '') + '</td>\</tr>'
+                    }else{
+                        popupContent+='<tr><td colspan="2">Park' + '</td></tr>'
+                    }
+                    popupContent+='</table>';
+
+            layer.bindPopup(popupContent, {maxHeight: 400});
         }
 
         function style_park_4_0() {
@@ -1056,7 +504,6 @@
         map.createPane('pane_park_4');
         map.getPane('pane_park_4').style.zIndex = 404;
         map.getPane('pane_park_4').style['mix-blend-mode'] = 'normal';
-        var layer_park_4 = new L.geoJson()
         var layer_park_4 = new L.geoJson(json_park_4, {
             attribution: '',
             interactive: true,
@@ -1066,29 +513,6 @@
             onEachFeature: pop_park_4,
             style: style_park_4_0,
         });
-        // $.ajax({
-        //     type:"get",
-        //     url: 'http://127.0.0.1:5000/data/park',
-        //     dataType: 'json',
-        //     async: false,
-        //     success: function (data) {
-        //         console.log(data)
-        //         layer_park_4 = L.geoJSON(data, {
-        //             attribution: '',
-        //             interactive: true,
-        //             layerName: 'layer_park_4',
-        //             pane: 'pane_park_4',
-        //             onEachFeature: pop_park_4,
-        //             style: style_park_4_0,
-        //         })
-        //     },
-        //     error: function (xhr, status, error) {
-        //         console.log('Ajax Fail: ' + error);
-        //     }
-        // });
-
-        bounds_group.addLayer(layer_park_4);
-        map.addLayer(layer_park_4);
         function pop_amenity_parking_5(feature, layer) {
             layer.on({
                 mouseout: function(e) {
@@ -1098,63 +522,12 @@
                 },
                 mouseover: highlightFeature,
             });
-            // var popupContent = '<table>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['full_id'] !== null ? autolinker.link(feature.properties['full_id'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['osm_id'] !== null ? autolinker.link(feature.properties['osm_id'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['osm_type'] !== null ? autolinker.link(feature.properties['osm_type'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['amenity'] !== null ? autolinker.link(feature.properties['amenity'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['level'] !== null ? autolinker.link(feature.properties['level'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['capacity_h'] !== null ? autolinker.link(feature.properties['capacity_h'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['maxstay'] !== null ? autolinker.link(feature.properties['maxstay'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['descriptio'] !== null ? autolinker.link(feature.properties['descriptio'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['ref'] !== null ? autolinker.link(feature.properties['ref'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['name'] !== null ? autolinker.link(feature.properties['name'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['surface'] !== null ? autolinker.link(feature.properties['surface'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['parking'] !== null ? autolinker.link(feature.properties['parking'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['fee'] !== null ? autolinker.link(feature.properties['fee'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['capacity_d'] !== null ? autolinker.link(feature.properties['capacity_d'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['access'] !== null ? autolinker.link(feature.properties['access'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['type'] !== null ? autolinker.link(feature.properties['type'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['parking_sp'] !== null ? autolinker.link(feature.properties['parking_sp'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //         <tr>\
-            //             <td colspan="2">' + (feature.properties['capacity'] !== null ? autolinker.link(feature.properties['capacity'].toLocaleString()) : '') + '</td>\
-            //         </tr>\
-            //     </table>';
-            // layer.bindPopup(popupContent, {maxHeight: 400});
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">Parking Space' + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
         }
 
         function style_amenity_parking_5_0() {
@@ -1184,8 +557,6 @@
             onEachFeature: pop_amenity_parking_5,
             style: style_amenity_parking_5_0,
         });
-        // bounds_group.addLayer(layer_amenity_parking_5);
-        // map.addLayer(layer_amenity_parking_5);
         function pop_bus_stop_6(feature, layer) {
             layer.on({
                 mouseout: function(e) {
@@ -1197,199 +568,7 @@
             });
             var popupContent = '<table>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['full_id'] !== null ? autolinker.link(feature.properties['full_id'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['osm_id'] !== null ? autolinker.link(feature.properties['osm_id'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['osm_type'] !== null ? autolinker.link(feature.properties['osm_type'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['public_tra'] !== null ? autolinker.link(feature.properties['public_tra'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['tram'] !== null ? autolinker.link(feature.properties['tram'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['start_date'] !== null ? autolinker.link(feature.properties['start_date'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['bus_stop'] !== null ? autolinker.link(feature.properties['bus_stop'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['crossing'] !== null ? autolinker.link(feature.properties['crossing'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['motor_vehi'] !== null ? autolinker.link(feature.properties['motor_vehi'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['emergency'] !== null ? autolinker.link(feature.properties['emergency'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['barrier'] !== null ? autolinker.link(feature.properties['barrier'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['access'] !== null ? autolinker.link(feature.properties['access'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['level'] !== null ? autolinker.link(feature.properties['level'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['indoor'] !== null ? autolinker.link(feature.properties['indoor'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['door'] !== null ? autolinker.link(feature.properties['door'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['constructi'] !== null ? autolinker.link(feature.properties['constructi'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ferry'] !== null ? autolinker.link(feature.properties['ferry'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['amenity'] !== null ? autolinker.link(feature.properties['amenity'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['train'] !== null ? autolinker.link(feature.properties['train'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['railway'] !== null ? autolinker.link(feature.properties['railway'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['usage'] !== null ? autolinker.link(feature.properties['usage'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['name_signe'] !== null ? autolinker.link(feature.properties['name_signe'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['back_door_'] !== null ? autolinker.link(feature.properties['back_door_'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['disused'] !== null ? autolinker.link(feature.properties['disused'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['noname'] !== null ? autolinker.link(feature.properties['noname'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['descriptio'] !== null ? autolinker.link(feature.properties['descriptio'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['internet_a'] !== null ? autolinker.link(feature.properties['internet_a'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['internet_1'] !== null ? autolinker.link(feature.properties['internet_1'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['internet_2'] !== null ? autolinker.link(feature.properties['internet_2'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['capacity'] !== null ? autolinker.link(feature.properties['capacity'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['surface'] !== null ? autolinker.link(feature.properties['surface'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['name_ja'] !== null ? autolinker.link(feature.properties['name_ja'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['alt_name'] !== null ? autolinker.link(feature.properties['alt_name'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['check_date'] !== null ? autolinker.link(feature.properties['check_date'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ref_linz_a'] !== null ? autolinker.link(feature.properties['ref_linz_a'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['addr_subur'] !== null ? autolinker.link(feature.properties['addr_subur'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['addr_stree'] !== null ? autolinker.link(feature.properties['addr_stree'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['addr_house'] !== null ? autolinker.link(feature.properties['addr_house'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['addr_city'] !== null ? autolinker.link(feature.properties['addr_city'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['operator'] !== null ? autolinker.link(feature.properties['operator'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['lit'] !== null ? autolinker.link(feature.properties['lit'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['covered'] !== null ? autolinker.link(feature.properties['covered'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['name_zh'] !== null ? autolinker.link(feature.properties['name_zh'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['check_da_1'] !== null ? autolinker.link(feature.properties['check_da_1'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['bin'] !== null ? autolinker.link(feature.properties['bin'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['name_mi'] !== null ? autolinker.link(feature.properties['name_mi'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['name_en'] !== null ? autolinker.link(feature.properties['name_en'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['asset_ref'] !== null ? autolinker.link(feature.properties['asset_ref'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['operator_w'] !== null ? autolinker.link(feature.properties['operator_w'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['departures'] !== null ? autolinker.link(feature.properties['departures'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['network_wi'] !== null ? autolinker.link(feature.properties['network_wi'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['network__1'] !== null ? autolinker.link(feature.properties['network__1'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['network'] !== null ? autolinker.link(feature.properties['network'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['layer'] !== null ? autolinker.link(feature.properties['layer'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['wheelchair'] !== null ? autolinker.link(feature.properties['wheelchair'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['official_n'] !== null ? autolinker.link(feature.properties['official_n'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['local_ref'] !== null ? autolinker.link(feature.properties['local_ref'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['loc_ref'] !== null ? autolinker.link(feature.properties['loc_ref'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['tactile_pa'] !== null ? autolinker.link(feature.properties['tactile_pa'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['name'] !== null ? autolinker.link(feature.properties['name'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['shelter'] !== null ? autolinker.link(feature.properties['shelter'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ref'] !== null ? autolinker.link(feature.properties['ref'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['highway'] !== null ? autolinker.link(feature.properties['highway'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['bus'] !== null ? autolinker.link(feature.properties['bus'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['bench'] !== null ? autolinker.link(feature.properties['bench'].toLocaleString()) : '') + '</td>\
+                        <td colspan="2">Bus Stop' + '</td>\
                     </tr>\
                 </table>';
             layer.bindPopup(popupContent, {maxHeight: 400});
@@ -1429,8 +608,6 @@
                 return L.circleMarker(latlng, style_bus_stop_6_0(feature));
             },
         });
-        // bounds_group.addLayer(layer_bus_stop_6);
-        // map.addLayer(layer_bus_stop_6);
         setBounds();
 
         // 创建一个搜索控件并添加到地图中
@@ -1457,7 +634,7 @@ var filterControl = L.Control.extend({
         },
         onAdd: function (map) {
             var container = L.DomUtil.create('div', 'filter-container');
-            container.innerHTML = '<button id="filter-btn">Filter Schools</button>';
+            container.innerHTML = '<button id="filter-btn">Filter</button>';
 
             //popup for filtering options
             var filterPopup = L.popup({
@@ -1468,7 +645,7 @@ var filterControl = L.Control.extend({
             });
 
             filterPopup.setContent(
-                '<h4>Filter Schools</h4>' +
+                '<h2>Filter Map</h2>' +
                 '<input type="checkbox" id="filter-primary" value="Primary"> Primary Schools<br>' +
                 '<input type="checkbox" id="filter-secondary" value="Secondary"> Secondary Schools<br>' +
                 '<input type="checkbox" id="filter-other" value="Other"> Other Schools<br>' +
@@ -1486,7 +663,7 @@ var filterControl = L.Control.extend({
             container.onclick = function (e) {
                 L.DomEvent.stopPropagation(e);
                 filterPopup.setLatLng(map.getCenter()).openOn(map);
-                //event listeners to checkboxes
+                //event listeners to filtering checkboxes
                 document.getElementById('filter-primary').addEventListener('change', updateSchoolsLayer);
                 document.getElementById('filter-secondary').addEventListener('change', updateSchoolsLayer);
                 document.getElementById('filter-other').addEventListener('change', updateSchoolsLayer);
@@ -1508,32 +685,20 @@ function updateMap() {
      var parks = document.getElementById('filter-parks').checked
      var parkingspaces = document.getElementById('filter-parkingspaces').checked
     
-
-
     if (busstops) {
-        // bounds_group.addLayer(layer_bus_stop_6);
         layer_bus_stop_6.addTo(map);
-        // map.addLayer(layer_bus_stop_6);
     } else {
-        // bounds_group.removeLayer(layer_bus_stop_6)
         map.removeLayer(layer_bus_stop_6)
      }
 
      if (parks) {
-        // bounds_group.addLayer(layer_bus_stop_6);
         layer_park_4.addTo(map);
-        // map.addLayer(layer_bus_stop_6);
     } else {
-        // bounds_group.removeLayer(layer_bus_stop_6)
         map.removeLayer(layer_park_4)
      }
-  
      if (parkingspaces) {
-        // bounds_group.addLayer(layer_bus_stop_6);
         layer_amenity_parking_5.addTo(map);
-        // map.addLayer(layer_bus_stop_6);
     } else {
-        // bounds_group.removeLayer(layer_bus_stop_6)
         map.removeLayer(layer_amenity_parking_5)
      }
 
@@ -1555,19 +720,18 @@ function updateSchoolsLayer() {
     var layers = [layer_school_girls_1, layer_school_boys_2, layer_school_coed_3];
     layers.forEach(function (layerGroup) {
         layerGroup.eachLayer(function (layer) {
-            if (layer.feature.properties['moe_years'] !== null && layer.feature.properties['moe_gender'] !== null) {
+            if (layer.feature.properties['MOE_years'] !== null && layer.feature.properties['MOE_gender'] !== null) {
                 var currentSchoolType = 'Other';
-                if (layer.feature.properties['moe_years'].includes("1-6") || layer.feature.properties['moe_years'].includes("1-8")) {
+                if (layer.feature.properties['MOE_years'].includes("1-6") || layer.feature.properties['MOE_years'].includes("1-8")) {
                     currentSchoolType = 'Primary';
-                } else if (layer.feature.properties['moe_years'].includes("7-13") || layer.feature.properties['moe_years'].includes("9-13")) {
+                } else if (layer.feature.properties['MOE_years'].includes("7-13") || layer.feature.properties['MOE_years'].includes("9-13")) {
                     currentSchoolType = 'Secondary';
                 }
 
                 var isVisible = (schoolType[currentSchoolType] || Object.values(schoolType).every(v => !v)) &&
-                                (genderType[layer.feature.properties['moe_gender']] || Object.values(genderType).every(v => !v)) ;
+                                (genderType[layer.feature.properties['MOE_gender']] || Object.values(genderType).every(v => !v)) ;
 
                 if (isVisible) {
-                   
                     layer.addTo(map);
                 } else {
                     map.removeLayer(layer);
@@ -1576,10 +740,6 @@ function updateSchoolsLayer() {
         });
     });
 }
-
-
-//These are the layer object names that we need to add to filtering option to remove/add to the map.
-//json_bus_stop_6, json_park_4, json_amenity_parking_5
 
 //center map view to Auckland
 var centreMap  = L.Control.extend({
@@ -1592,7 +752,7 @@ var centreMap  = L.Control.extend({
 
         container.onclick = function (e) {
             L.DomEvent.stopPropagation(e);
-            //set the map view to the center of Auckland, zoom level of 10
+            //set the map view to the center of Auckland, zoom level of 12
             map.setView([-36.8485, 174.7633], 12);
         };
 
@@ -1600,49 +760,314 @@ var centreMap  = L.Control.extend({
     }
 });
 map.addControl(new centreMap ());
+//----------------------------------------------------
 
+//Starting point dropdown
+function searchOpenCage(query, callback) {
+  const apiKey = 'ecfdbf092fe54c139d294aefa28ec4bd'; //OpenCage API key
+  const apiUrl = `https://api.opencagedata.com/geocode/v1/json?key=${apiKey}&q=${query}&limit=5&countrycode=nz&proximity=-36.8485,174.7633`;
 
-// var router = L.routing.osrmv1({
-//     serviceUrl: 'https://router.project-osrm.org/route/v1'
-// });
+  $.getJSON(apiUrl, function(data) {
+    const results = data.results
+      .filter(function(result) {
+        //Check if the result's components contain 'Auckland' as the city, state, or state_district
+        return (
+          result.components.city === 'Auckland' ||
+          result.components.state === 'Auckland' ||
+          result.components.state_district === 'Auckland'
+        );
+      })
+      .map(function(result) {
+        return {
+          label: result.formatted,
+          value: result.geometry
+        };
+      });
 
-
-// var control = L.Routing.control({
-//     router: router,
-//     plan: L.Routing.plan([], {
-//         createMarker: function(i, wp, nWps) {
-      
-//             return L.marker(wp.latLng, {
-//                 draggable: true,
-//                 icon: L.icon({
-//                     iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-//                     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-//                     iconSize: [25, 41],
-//                     iconAnchor: [12, 41]
-//                 })
-//             });
-//         },
-//         geocoder: L.Control.Geocoder.nominatim()
-//     }),
-//     // 设置路由方向图层的样式
-//     routeLine: function(route, options) {
-//         return L.polyline(route.geometry.coordinates, options);
-//     }
-// });
-
-// // 将控制器添加到地图中
-// control.addTo(map);
-
-// 将地图缩放到路线的视图范围
-// control.on('routesfound', function(e) {
-//     var bounds = e.routes[0].bounds;
-//     map.fitBounds(bounds);
-// });
-var savedSchools= [];
-
-function saveSchool(){
-    savedSchools.add()
+    callback(results);
+  });
 }
+
+
+function initOpenCageAutocomplete() {
+  $("#starting-address").autocomplete({
+    minLength: 3,
+    source: function(request, response) {
+        console.log('Autocomplete source function called with term:', request.term); // Add this line
+      searchOpenCage(request.term, response);
+    },
+    select: function(event, ui) {
+      $("#starting-address").val(ui.item.label);
+      $("#starting-address").data("coordinates", ui.item.value);
+      return false;
+    }
+  });
+}
+
+
+
+// destination dropdown
+
+var layers = [layer_school_girls_1, layer_school_boys_2, layer_school_coed_3];
+var schoolNames = [];
+
+// populates the dropdown with school names
+function populateSchoolDropdown(dropdown) {
+  console.log('Populating dropdown...'); 
+  layers.forEach(function (layerGroup) {
+    console.log('Layer group:', layerGroup); 
+    layerGroup.eachLayer(function (layer) {
+      console.log('Layer:', layer); 
+      if (layer.feature && layer.feature.properties && typeof layer.getBounds === 'function') {
+        var option = document.createElement("option");
+        var coordinates = layer.getBounds().getCenter(); // center coordinates of the polygon
+        option.value = JSON.stringify(coordinates); // coordinates as a JSON string
+        option.text = layer.feature.properties['name']; // name of school
+        dropdown.add(option);
+      }
+    });
+  });
+}
+
+// populates the dropdown with school names
+// function populateSchoolDropdown(dropdown) {
+//   console.log('Populating dropdown...');
+//   layers.forEach(function (layerGroup, groupIndex) {
+//     console.log('Layer group index:', groupIndex, 'Layer group:', layerGroup);
+//     layerGroup.eachLayer(function (layer, layerIndex) {
+//       console.log('Layer index:', layerIndex, 'Layer:', layer);
+//       if (layer.feature && layer.feature.properties && typeof layer.getBounds === 'function') {
+//         var option = document.createElement("option");
+//         var coordinates = layer.getBounds().getCenter(); // center coordinates of the polygon
+//         option.value = JSON.stringify(coordinates); // coordinates as a JSON string
+//         option.text = layer.feature.properties['name']; // name of school
+//         dropdown.add(option);
+//       } else {
+//         console.warn('Skipping layer index:', layerIndex, 'Layer:', layer);
+//       }
+//     });
+//   });
+// }
+
+function initSchoolAutocomplete() {
+  schoolNames = []; // clear the schoolNames array
+  isDropdownPopulated = false;
+  isStartingAddressAutocompleteInitialized = false;
+
+  layers.forEach(function (layerGroup) {
+    layerGroup.eachLayer(function (layer) {
+      if (layer.feature && layer.feature.properties && typeof layer.getBounds === 'function') {
+        var name = layer.feature.properties['name'];
+        var coordinates = layer.getBounds().getCenter();
+        schoolNames.push({label: name, value: JSON.stringify(coordinates)});
+      }
+    });
+  });
+
+  console.log('School Names:', schoolNames);
+
+  $("#school-autocomplete").autocomplete({
+    source: function(request, response) {
+      var term = request.term.toLowerCase(); 
+      var results = schoolNames.filter(function(school) {
+        return school.label.toLowerCase().startsWith(term);
+      });
+      response(results.slice(0, 5)); // limit to 5 results
+    },
+    minLength: 1,
+    select: function (event, ui) {
+      console.log('Autocomplete select function called with item:', ui.item); 
+      $("#school-autocomplete").val(ui.item.label);
+      $("#school-autocomplete").data('coordinates', ui.item.value);
+      return false;
+    }
+  });
+  console.log('Autocomplete initialized');
+}
+
+
+// if false populate or init
+var isDropdownPopulated = false;
+var isStartingAddressAutocompleteInitialized = false;
+let hasRoute = false;
+
+function initCalculateRouteBtn() {
+  $("#calculate-route-btn").off('click').click(function() { // Add .off('click') before .click()
+    const startingCoordinates = $("#starting-address").data("coordinates");
+    const destinationCoordinates = JSON.parse($("#school-autocomplete").data("coordinates"));
+
+    console.log('Starting Coordinates:', startingCoordinates);
+    console.log('Destination Coordinates:', destinationCoordinates);
+
+    calculateRoute(startingCoordinates, destinationCoordinates);
+        // set the flag to true when there is a route on the map
+        hasRoute = true;
+  });
+}
+
+
+// navigation control
+var navigationControl = L.Control.extend({
+  options: {
+    position: 'topright'
+  },
+  onAdd: function (map) {
+    var container = L.DomUtil.create('div', 'navigation-container');
+    container.innerHTML = '<button id="navigation-btn">Navigate</button>';
+
+    // popup for navigation interface
+    var navigationPopup = L.popup({
+      closeButton: true,
+      closeOnClick: false,
+      minWidth: 200,
+      autoPan: true
+    });
+
+    navigationPopup.setContent(
+      '<h2>Navigation Interface</h2>' +
+      '<p>Starting point:</p>' +
+      '<input type="text" id="starting-address" placeholder="Starting address">' +
+      '<p>Select a school to navigate to:</p>' +
+      '<input type="text" id="school-autocomplete" placeholder="Type a school">'+
+      '<button id="calculate-route-btn">Navigate</button>'
+    );
+
+
+    container.onclick = function (e) {
+  L.DomEvent.stopPropagation(e);
+
+  if (e.target.id === "navigation-btn") { // check if the clicked element has an id of "navigation-btn"
+    navigationPopup.setLatLng(map.getCenter()).openOn(map);
+
+    isDropdownPopulated = false;
+    isStartingAddressAutocompleteInitialized = false;
+
+    console.log('isDropdownPopulated:', isDropdownPopulated);
+    console.log('isStartingAddressAutocompleteInitialized:', isStartingAddressAutocompleteInitialized);
+
+    initCalculateRouteBtn();
+
+    // initialize the autocomplete only if it hasn't been initialized before
+    if (!isDropdownPopulated) {
+      initSchoolAutocomplete();
+      isDropdownPopulated = true;
+    }
+
+    // initialize the starting address autocomplete only if it hasn't been initialized before
+    if (!isStartingAddressAutocompleteInitialized) { 
+      initOpenCageAutocomplete();
+      isStartingAddressAutocompleteInitialized = true;
+    }
+  }
+};
+
+
+    return container;
+  }
+});
+
+map.addControl(new navigationControl());
+
+//Routing
+map.createPane("routePane");
+map.getPane("routePane").style.zIndex = 500;
+
+const routeLayerGroup = L.layerGroup().addTo(map);
+let routePolyline;
+
+
+
+function drawRoute(coordinates) {
+  console.log("drawRoute function called");
+
+  if (routePolyline) {
+    map.removeLayer(routePolyline);
+  }
+
+  const latLngs = coordinates.map(coord => [coord[0], coord[1]]);
+  console.log('LatLngs used for drawing route:', latLngs);
+
+  const polylineOptions = {
+    color: "red",
+    weight: 5,
+    opacity: 1,
+    pane: "routePane" // pane
+  };
+
+  routePolyline = L.polyline(latLngs, polylineOptions);
+  routePolyline.addTo(map);
+
+  map.fitBounds(routePolyline.getBounds());
+
+  console.log("Polyline:", routePolyline);
+}
+
+
+function displayRoute(route) {
+    console.log("displayRoute function called");
+  const coordinates = route.geometry.coordinates;
+
+  // fix coordinates by swapping latitude and longitude
+  const fixedRouteCoordinates = coordinates.map(coord => [coord[1], coord[0]]);
+
+  console.log('Fixed Route Coordinates:', fixedRouteCoordinates);
+
+const endMarker = L.marker(fixedRouteCoordinates[fixedRouteCoordinates.length - 1]).addTo(map);
+
+  // fixedRouteCoordinates for creating the polyline.
+  const polyline = L.polyline(fixedRouteCoordinates, {color: 'blue'}).addTo(map);
+  map.fitBounds(polyline.getBounds());
+  drawRoute(fixedRouteCoordinates); // drawRoute function with the fixed coordinates
+
+  const clearRouteBtn = document.createElement("button");
+clearRouteBtn.innerHTML = "Clear Route";
+clearRouteBtn.addEventListener("click", clearRoute);
+
+if (!document.querySelector("#clear-route-btn")) {
+  const container = document.querySelector(".navigation-container");
+  container.appendChild(clearRouteBtn);
+  clearRouteBtn.id = "clear-route-btn";
+}
+
+function clearRoute() {
+  if (routePolyline) {
+    map.removeLayer(routePolyline);
+  }
+  if (endMarker) {
+    map.removeLayer(endMarker);
+  }
+  if (document.querySelector("#clear-route-btn")) {
+    document.querySelector("#clear-route-btn").remove();
+  }
+}
+
+
+}
+
+async function calculateRoute(startingCoordinates, destinationCoordinates) {
+    console.log("calculateRoute function called"); 
+    let routeLayer, schoolMarker;
+
+  const apiKey = "5b3ce3597851110001cf6248e5c0ff4ac4be4727bba49f8234b6e956"; // OpenRouteService API key
+  const apiUrl = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${startingCoordinates.lng},${startingCoordinates.lat}&end=${destinationCoordinates.lng},${destinationCoordinates.lat}&overview=full`;
+
+  console.log('Starting:', startingCoordinates, 'Destination:', destinationCoordinates);
+
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log('Route data:', data); //response data
+    displayRoute(data.features[0]);
+  } catch (error) {
+    console.error('Error fetching route:', error);
+  }
+  
+}
+
+
         </script>
     </body>
 </html>
