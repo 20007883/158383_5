@@ -1,4 +1,7 @@
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+from flask import Flask, jsonify, make_response, request
+import psycopg2
+import json
 
 
 class CORSRequestHandler(SimpleHTTPRequestHandler):
@@ -6,9 +9,6 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         super().end_headers()
 
-from flask import Flask, jsonify, make_response
-import psycopg2
-import json
 
 app = Flask(__name__)
 
@@ -91,8 +91,7 @@ def get_data_coed():
                 'moe_gender': rows[row][51],
                 'moe_author': rows[row][52],
                 'note': rows[row][53]
-            }
-            ,
+            },
             'geometry': {
                 'type': 'MultiPolygon',
                 'coordinates': geo['coordinates']
@@ -100,7 +99,7 @@ def get_data_coed():
 
         }
         geojson['features'].append(feature)
-        json_data = json.dumps(geojson)
+    json_data = json.dumps(geojson)
 
     response = make_response(json_data)
     response.headers['Access-Control-Allow-Origin'] = '*'
@@ -182,8 +181,7 @@ def get_data_girl():
                 'moe_gender': rows[row][51],
                 'moe_author': rows[row][52]
 
-            }
-            ,
+            },
             'geometry': {
                 'type': 'MultiPolygon',
                 'coordinates': geo['coordinates']
@@ -191,11 +189,12 @@ def get_data_girl():
 
         }
         geojson['features'].append(feature)
-        json_data = json.dumps(geojson)
+    json_data = json.dumps(geojson)
 
     response = make_response(json_data)
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
+
 
 @app.route('/data/boyschool', methods=['GET'])
 def get_data_boy():
@@ -272,8 +271,7 @@ def get_data_boy():
                 'moe_gender': rows[row][51],
                 'moe_author': rows[row][52]
 
-            }
-            ,
+            },
             'geometry': {
                 'type': 'MultiPolygon',
                 'coordinates': geo['coordinates']
@@ -281,67 +279,36 @@ def get_data_boy():
 
         }
         geojson['features'].append(feature)
-        json_data = json.dumps(geojson)
+    json_data = json.dumps(geojson)
 
     response = make_response(json_data)
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
+
 @app.route('/data/park', methods=['GET'])
 def get_data_park():
     conn = psycopg2.connect(host='localhost', dbname='map_data', user='postgres', password='1234567')
     cur = conn.cursor()
-    cur.execute('SELECT * FROM park')
+    cur.execute('SELECT name FROM park')
     rows = cur.fetchall()
     cur.execute("SELECT ST_AsGeoJSON(geom) FROM park")
     g = cur.fetchall()
     conn.close()
+
     geojson = {
         'type': 'FeatureCollection',
         'name': 'park',
         'features': []
     }
 
-    for row in range(len(rows)):
+    for row in range(len(g)):
         geo = json.loads(g[row][0])
-
         feature = {
             'type': 'Feature',
             'properties': {
-        #         'full_id': rows[row][1],
-        #         'osm_id': rows[row][2],
-        #         'osm_type': rows[row][3],
-        #         'leisure': rows[row][4],
-        #
-        #         # 'sorting_na': rows[row][60],
-        #         # 'website': rows[row][61],
-        #         # 'protection': rows[row][62],
-        #         # 'protect_cl': rows[row][63],
-        #         # 'natural': rows[row][64],
-        #         # 'boundary': rows[row][65],
-        #         # 'alt_name': rows[row][66],
-        #         # 'wikipedia': rows[row][67],
-        #         # 'wikidate': rows[row][68],
-        #         # 'start_date': rows[row][69],
-        #         # 'name_mk': rows[row][70],
-        #         # 'name_ja': rows[row][71],
-        #         # 'name_ety_1': rows[row][72],
-        #         # 'name_ety_2': rows[row][73],
-        #         # 'name_cs': rows[row][74],
-        #         # 'operator_w': rows[row][75],
-        #         # 'operator_1': rows[row][76],
-        #         # 'operator_t': rows[row][77],
-        #         # 'operator': rows[row][78],
-        #         # 'name_mi': rows[row][79],
-        #         # 'name_en': rows[row][80],
-        #         # 'type': rows[row][81],
-        #         # 'name': rows[row][82],
-        #         # 'dog': rows[row][83],
-        #
-        #
-        #
-            }
-            ,
+                'name': rows[row],
+            },
             'geometry': {
                 'type': 'MultiPolygon',
                 'coordinates': geo['coordinates']
@@ -349,11 +316,112 @@ def get_data_park():
 
         }
         geojson['features'].append(feature)
-        json_data = json.dumps(geojson)
+    json_data = json.dumps(geojson)
 
     response = make_response(json_data)
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
+
+
+@app.route('/data/parking', methods=['GET'])
+def get_data_parking():
+    conn = psycopg2.connect(host='localhost', dbname='map_data', user='postgres', password='1234567')
+    cur = conn.cursor()
+    cur.execute('SELECT amenity FROM amenity_parking')
+    rows = cur.fetchall()
+    cur.execute("SELECT ST_AsGeoJSON(geom) FROM amenity_parking")
+    g = cur.fetchall()
+    conn.close()
+
+    geojson = {
+        'type': 'FeatureCollection',
+        'name': 'parking',
+        'features': []
+    }
+
+    for row in range(len(g)):
+        geo = json.loads(g[row][0])
+        feature = {
+            'type': 'Feature',
+            'properties': {
+                'name': rows[row],
+            },
+            'geometry': {
+                'type': 'MultiPolygon',
+                'coordinates': geo['coordinates']
+            }
+
+        }
+        geojson['features'].append(feature)
+    json_data = json.dumps(geojson)
+
+    response = make_response(json_data)
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
+
+@app.route('/data/bus_stop', methods=['GET'])
+def get_data_bus_stop():
+    conn = psycopg2.connect(host='localhost', dbname='map_data', user='postgres', password='1234567')
+    cur = conn.cursor()
+    cur.execute('SELECT name FROM but_stop')
+    rows = cur.fetchall()
+    cur.execute("SELECT ST_AsGeoJSON(geom) FROM but_stop")
+    g = cur.fetchall()
+    conn.close()
+
+    geojson = {
+        'type': 'FeatureCollection',
+        'name': 'bus_stop',
+        'features': []
+    }
+
+    for row in range(len(g)):
+        geo = json.loads(g[row][0])
+        feature = {
+            'type': 'Feature',
+            'properties': {
+                'name': rows[row],
+            },
+            'geometry': {
+                'type': 'MultiPolygon',
+                'coordinates': geo['coordinates']
+            }
+
+        }
+        geojson['features'].append(feature)
+    json_data = json.dumps(geojson)
+
+    response = make_response(json_data)
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
+
+# 处理POST请求，将数据插入到users_info表中
+@app.route('/data/add_user', methods=['POST'])
+def add_user():
+    try:
+        # 获取前端POST请求中的数据
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+        phone = request.form['phone']
+        school = request.form['school']
+        note = request.form['note']
+
+        # 在users_info表中插入数据
+        conn = psycopg2.connect(host='localhost', dbname='map_data', user='postgres', password='1234567')
+        cur = conn.cursor()
+        cur.execute("INSERT INTO users_info (username, password, email, phone, school, note) VALUES (%s, %s, %s, %s, %s, %s)", (username, password, email, phone, school, note))
+        conn.commit()
+        cur.close()
+
+        # 返回成功信息
+        return jsonify({'result': 'success'})
+
+    except Exception as e:
+        # 返回错误信息
+        return jsonify({'error': str(e)})
 
 
 if __name__ == '__main__':
