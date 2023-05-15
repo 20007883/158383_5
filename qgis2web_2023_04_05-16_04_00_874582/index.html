@@ -4,27 +4,33 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
-        <title>School catcer</title>
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <link rel="stylesheet" href="css/leaflet.css">
         <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
         <link rel="stylesheet" href="css/leaflet-measure.css">
+
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" integrity="sha512-rl5BC8z6W9Gv7gBZD5M6i8uFw4Koi3kmegAu1GUVVpKnRkW0SvDF2vnuyFNzYgP+k8eH4j7fzmG+18yjnM6Rng==" crossorigin=""/>
         <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha384-b5HzkYZa0LeP5oQd6Jn1X9jIXFzYQuhf+Jv6eWXYn8nU6j+amFFZvAzfmaWJX8Tb" crossorigin="anonymous">
         <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
-        <link rel="stylesheet" href="./css/bootstrap.css">
+
+        <!-- JQuery school dropdown autocomplete -->
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+        <!-- Sørensen-Dice coefficient -->
+        <script src="https://cdn.jsdelivr.net/npm/string-similarity/umd/string-similarity.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.1/js.cookie.min.js"></script>
+
+
         <style>
         #map {
-            width: 1266px;
+            width: 1360px;
             height: 844px;
-            /* position: relative; */
         }
-        #testnum {
-            width: 200px;
-            height: 200px;
-        }
+        
         /* school-dropdown */
         .ui-autocomplete {
             position: absolute;
@@ -36,114 +42,12 @@
             border: 1px solid #ccc;
             padding: 5px;
         }
+
         </style>
         <title></title>
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-light" style="background-color: rgb(8, 35, 70);">
-            <div class="container-fluid">
-              <a class="navbar-brand text-white" href="#">School Catcher</a>
-              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-              </button>
-              <div class="collapse navbar-collapse d-flex justify-content-end" id="navbarNav">
-                <ul class="navbar-nav">
-                  <li class="nav-item">
-                    <a class="nav-link active text-white" aria-current="page" href="index.html">Home</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link text-white" href="home.html">About Us</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link active text-white" aria-current="page" href="login.html">login</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </nav>
-        <!-- <div id="testnum"> 123456789 </div> -->
-        <div class="container-fluid">
-            <div class="row">
-              <div class="col-md-2 py-4" style="background-color: rgb(26, 59, 26);">
-                <div class="row pt-2">
-                  <li class="nav-item mt-2">
-                    <h5><a class="text-decoration-none nav-link text-light" href=""><i class="fa fa-dashcube" aria-hidden="true"></i>
-                        Saved school</a></h5>
-                  </li>
-                </div>
-                <div class="row pt-2">
-                  <li class="nav-item mt-2">
-                    <h5><a class="text-decoration-none nav-link text-light" href=""><i class="fa fa-dashcube" aria-hidden="true"></i>
-                        Navigate</a></h5>
-                  </li>
-                </div>
-                <div class="row pt-2">
-                  <li class="nav-item mt-2">
-                    <h5><a href="" class="text-decoration-none nav-link text-light" data-toggle="collapse" data-target="#products"><i
-                          class="fa fa-list" aria-hidden="true"></i> Notes <i class="fa fa-caret-down"
-                          aria-hidden="true"></i></a></h5>
-                  </li>
-        
-                </div>
-                <div class="row pt-2">
-                  <li class="nav-item mt-2">
-                    <h5><a href="" class="text-decoration-none nav-link text-light" data-toggle="collapse" data-target="#productcategory"><i
-                          class="fa fa-briefcase" aria-hidden="true"></i> Share <i class="fa fa-caret-down"
-                          aria-hidden="true"></i></a>
-                  </li>
-                  </h5>
-                </div>
-                <div class="row pt-2">
-                  <li class="nav-item mt-2">
-                    <h5><a href="" class="text-decoration-none nav-link text-light" data-toggle="collapse" data-target="#productcategory"><i
-                          class="fa fa-briefcase" aria-hidden="true"></i> Map setting <i class="fa fa-caret-down"
-                          aria-hidden="true"></i></a>
-                  </li>
-                  </h5>
-                </div>
-              </div>
-              <div id="map"></div>
-              <!-- <div class="col-md-10" id="map">
-                <div class="card text-center d-flex p-4 justify-content-center shadow-lg p-3 mb-5  rounded bg-danger" id="map">
-                </div>
-                <div class="bg-dark p-2 rounded-pill">
-                  <h6 class="text-warning text-center pt-2">Sign up for school catcher to get the best school in Auckland</h6>
-                </div>
-        
-              </div> -->
-            </div>
-          </div>
-
-
-        <!-- <div id="map"></div> -->
-
-        <div class="row d-flex " style="background-color: rgb(8, 35, 70);">
-            <div class="col-md-4 ">
-              <h4 class="text-white text-center">About</h4>
-              <h6 class="text-light text-center">Our story</h6>
-              <h6 class="text-light text-center">Team</h6>
-              <h6 class="text-light text-center">career</h6>
-            </div>
-            <div class="col-md-4">
-              <h5 class="text-white text-center">Subscribe now</h5>
-              <form class=" p-2 needs-validation" novalidate>
-                <div class="row p-2">
-                  <div class="col-md-12 p-2">
-                    <input type="passowrd" class="form-control" id="validationCustom02" placeholder="Email" required>
-                  </div>
-                </div>
-                <div class="row px-3 py-2">
-                  <a href="registerpatient.html" class="btn  btn-warning rounded-pill">Subscribe now</a>
-                </div>
-              </form>
-            </div>
-            <div class="col-md-4">
-              <h4 class="text-white text-center">Legal</h4>
-              <h6 class="text-light text-center">terms & conditions</h6>
-              <h6 class="text-light text-center">Privacy</h6>
-              <h6 class="text-light text-center">Terms of use</h6>
-            </div>
+        <div id="map">
         </div>
         <script src="js/qgis2web_expressions.js"></script>
         <script src="js/leaflet.js"></script>
@@ -165,18 +69,9 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js" integrity="sha512-wvBZD6EYf+du8MwOss+gxwejJccfexNYOmVT2Ro0X+OaOJjKWez1fR8OhRt0xvQ2L0JhPjzTlTqah3ylz0VKgA==" crossorigin=""></script>
         <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
         <script type="text/javascript" src="./js/leaflet-seacher.js"></script>
-        <script src="js/jquery-3.6.4.js" type="text/javascript" charset="utf-8"></script>
-
-        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha384-jyexylFsW8XsRc1sJBKBQvZsKsWTPxzeoikAXC0JVTy+/TI0RPQ2XRSURb6voLxD" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-        
-                <!-- Sørensen-Dice coefficient -->
-        <script src="https://cdn.jsdelivr.net/npm/string-similarity/umd/string-similarity.min.js"></script>
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.1/js.cookie.min.js"></script>
-        
-
         <script>
+
         var highlightLayer;
         function highlightFeature(e) {
             highlightLayer = e.target;
@@ -193,24 +88,16 @@
             }
         }
         var map = L.map('map', {
-            zoomControl:true, maxZoom:28, minZoom:1
+            zoomControl:true, maxZoom:28, minZoom:10
         }).fitBounds([[-36.89958510224771,174.72018369682814],[-36.881467668888305,174.7494039753342]]);
         var hash = new L.Hash(map);
         map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
         var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
-        var measureControl = new L.Control.Measure({
-            position: 'topleft',
-            primaryLengthUnit: 'meters',
-            secondaryLengthUnit: 'kilometers',
-            primaryAreaUnit: 'sqmeters',
-            secondaryAreaUnit: 'hectares'
-        });
-        measureControl.addTo(map);
-        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
-        .innerHTML = '';
-        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
-        .className += ' fas fa-ruler';
+
+
+
         var bounds_group = new L.featureGroup([]);
+
         function setBounds() {
         }
         map.createPane('pane_OSMStandard_0');
@@ -226,15 +113,25 @@
         });
         layer_OSMStandard_0;
         map.addLayer(layer_OSMStandard_0);
+
+
+
+        // Array to store saved schools
+        var savedSchools = [];
+
+                //school popup
         function pop_school_girls_1(feature, layer) {
-            layer.on({
+            layer.on({ 
                 mouseout: function(e) {
+                    // console.log("pop_school_girls_1 layer:", layer); 
+                    // console.log("pop_school_girls_1 feature:", feature); 
                     for (i in e.target._eventParents) {
                         e.target._eventParents[i].resetStyle(e.target);
                     }
                 },
                 mouseover: highlightFeature,
             });
+
             var addr = (feature.properties['addr_house'] !== null ? autolinker.link(feature.properties['addr_house'].toLocaleString()) : '') + ' ' + (feature.properties['addr_stree'] !== null ? autolinker.link(feature.properties['addr_stree'].toLocaleString()) : '') + ', Auckland ' + (feature.properties['addr_postc'] !== null ? autolinker.link(feature.properties['addr_postc'].toLocaleString()) : '')
             var popupContent = '<h2>School Information</h2>' + '<table>'+
                     '<tr>'+
@@ -247,10 +144,10 @@
                         '<td colspan="2">Name: ' + (feature.properties['name'] !== null ? autolinker.link(feature.properties['name'].toLocaleString()) : '') + '</td>'+
                     '</tr>'+
                     '<tr>'+
-                        '<td colspan="2">Grades: ' + (feature.properties['moe_years'] !== null ? autolinker.link(feature.properties['moe_years'].toLocaleString()) : '') + '</td>'+
+                        '<td colspan="2">Grades: ' + (feature.properties['MOE_years'] !== null ? autolinker.link(feature.properties['MOE_years'].toLocaleString()) : '') + '</td>'+
                     '</tr>'+
                     '<tr>'+
-                        '<td colspan="2">Gender: ' + (feature.properties['moe_gender'] !== null ? autolinker.link(feature.properties['moe_gender'].toLocaleString()) : '') + '</td>'+
+                        '<td colspan="2">Gender: ' + (feature.properties['MOE_gender'] !== null ? autolinker.link(feature.properties['MOE_gender'].toLocaleString()) : '') + '</td>'+
                     '</tr>'+
                     '<tr>'+
                         '<td colspan="2">Address: ' + addr + '</td>'+
@@ -279,12 +176,45 @@
                     popupContent += '<tr><td colspan="2"><label for="notes-' + feature.properties['osm_id'] + '">Notes:</label></td></tr>';
                     popupContent += '<tr><td colspan="2"><textarea id="notes-' + feature.properties['osm_id'] + '" style="width:100%;height:80px;resize:none">' + feature.properties.notes + '</textarea></td></tr>';
                     popupContent += '<tr><td colspan="2"><button id="saveNotesButton-' + feature.properties['osm_id'] + '">Save</button></td></tr>';
-
-
+                    popupContent += '<tr><td colspan="2"><button id="saveSchoolButton-' + feature.properties['osm_id'] + '">Save School</button></td></tr>';
                     popupContent += '</table>';
 
             layer.bindPopup(popupContent, { maxHeight: 400 });
 
+            layer.on('popupopen', function() {
+                // When the popup is opened, add a click event listener to the "Save School" button
+                var saveSchoolButton = document.getElementById('saveSchoolButton-' + feature.properties['osm_id']);
+
+                // Function to check if the school is saved
+                function isSchoolSaved() {
+                    return savedSchools.some(function(school) {
+                    return school.osm_id === feature.properties.osm_id;
+                    });
+                }
+
+                // Update the button text depending on whether the school is saved
+                saveSchoolButton.textContent = isSchoolSaved() ? 'Unsave School' : 'Save School';
+
+                saveSchoolButton.addEventListener('click', function() {
+                    if (isSchoolSaved()) {
+                        // If the school is saved, remove it from the list
+                        savedSchools = savedSchools.filter(function(school) {
+                            return school.osm_id !== feature.properties.osm_id;
+                        });
+                        alert('School removed!');
+                    } else {
+                        // Save the school to the list
+                        savedSchools.push(feature.properties);
+                        alert('School saved!');
+                    }
+
+                    // Update the button text depending on whether the school is saved
+                    saveSchoolButton.textContent = isSchoolSaved() ? 'Unsave School' : 'Save School';
+
+                    // Print the saved schools array to the console
+                    console.log(savedSchools);
+                });
+            });
         }
 
         function style_school_girls_1_0() {
@@ -305,100 +235,118 @@
         map.createPane('pane_school_girls_1');
         map.getPane('pane_school_girls_1').style.zIndex = 401;
         map.getPane('pane_school_girls_1').style['mix-blend-mode'] = 'normal';
-        // var layer_school_girls_1 = new L.geoJson(json_school_girls_1, {
-        //     attribution: '',
-        //     interactive: true,
-        //     dataVar: 'json_school_girls_1',
-        //     layerName: 'layer_school_girls_1',
-        //     pane: 'pane_school_girls_1',
-        //     onEachFeature: pop_school_girls_1,
-        //     style: style_school_girls_1_0,
-        // });
-        var layer_school_girls_1 = new L.geoJson()
-        $.ajax({
-            type:"get",
-            url: 'http://127.0.0.1:5000/data/girlschool',
-            dataType: 'json',
-            async: false,
-            success: function (data) {
-                layer_school_girls_1 = L.geoJSON(data, {
-                    attribution: '',
-                    interactive: true,
-                    layerName: 'layer_school_girls_1',
-                    pane: 'pane_school_girls_1',
-                    onEachFeature: pop_school_girls_1,
-                    style: style_school_girls_1_0,
-                })
-                console.log("16.6%  [II        ]")
-            },
-            error: function (xhr, status, error) {
-                console.log('Ajax Fail: ' + error);
-            }
+        var layer_school_girls_1 = new L.geoJson(json_school_girls_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_school_girls_1',
+            layerName: 'layer_school_girls_1',
+            pane: 'pane_school_girls_1',
+            onEachFeature: pop_school_girls_1,
+            style: style_school_girls_1_0,
         });
-        
         bounds_group.addLayer(layer_school_girls_1);
         map.addLayer(layer_school_girls_1);
 
+
+        //boys school popup
         function pop_school_boys_2(feature, layer) {
-            layer.on({
+            layer.on({ 
                 mouseout: function(e) {
+                    // console.log("pop_school_boys_2 layer:", layer); 
+                    // console.log("pop_school_boys_2 feature:", feature); 
                     for (i in e.target._eventParents) {
                         e.target._eventParents[i].resetStyle(e.target);
                     }
                 },
                 mouseover: highlightFeature,
             });
+            
             var addr = (feature.properties['addr_house'] !== null ? autolinker.link(feature.properties['addr_house'].toLocaleString()) : '') + ' ' + (feature.properties['addr_stree'] !== null ? autolinker.link(feature.properties['addr_stree'].toLocaleString()) : '') + ', Auckland ' + (feature.properties['addr_postc'] !== null ? autolinker.link(feature.properties['addr_postc'].toLocaleString()) : '')
 
-var popupContent = '<h2>School Information</h2>' +'<table>'+
-        '<tr>'+
-            '<td colspan="2">' + (feature.properties['full_id'] !== null ? autolinker.link(feature.properties['full_id'].toLocaleString()) : '') + '</td>'+
-        '</tr>'+
-        '<tr>'+
-            '<td colspan="2">' + (feature.properties['osm_id'] !== null ? autolinker.link(feature.properties['osm_id'].toLocaleString()) : '') + '</td>'+
-        '</tr>'+
-        '<tr>'+
-            '<td colspan="2">Name: ' + (feature.properties['name'] !== null ? autolinker.link(feature.properties['name'].toLocaleString()) : '') + '</td>'+
-        '</tr>'+
-        '<tr>'+
-            '<td colspan="2">Grades: ' + (feature.properties['moe_years'] !== null ? autolinker.link(feature.properties['moe_years'].toLocaleString()) : '') + '</td>'+
-        '</tr>'+
-        '<tr>'+
-            '<td colspan="2">Gender: ' + (feature.properties['moe_gender'] !== null ? autolinker.link(feature.properties['moe_gender'].toLocaleString()) : '') + '</td>'+
-        '</tr>'+
-        '<tr>'+
-            '<td colspan="2">Address: ' + addr + '</td>'+
-        '</tr>';
-        if(feature.properties['email'] !== null){
-            popupContent+= '<tr>'+'<td colspan="2">Email: ' + (feature.properties['email'] !== null ? autolinker.link(feature.properties['email'].toLocaleString()) : '') + '</td>'+'</tr>'
-        }
-        if(feature.properties['religion'] !== null){
-            popupContent+= '<tr>'+'<td colspan="2">Religion: ' + (feature.properties['religion'] !== null ? autolinker.link(feature.properties['religion'].toLocaleString()) : '') + '</td>'+'</tr>'
-        }
-        if(feature.properties['website'] !== null){
-            popupContent+= '<tr>'+'<td colspan="2">Website: ' + (feature.properties['website'] !== null ? autolinker.link(feature.properties['website'].toLocaleString()) : '') + '</td>'+'</tr>'
-        }
-        if(feature.properties['phone'] !== null){
-            popupContent+= '<tr>'+'<td colspan="2">Phone: ' + (feature.properties['phone'] !== null ? autolinker.link(feature.properties['phone'].toLocaleString()) : '') + '</td>'+'</tr>'
-        }
-        if (feature.properties.notes !== undefined) {
-            popupContent += '<h3>Notes:</h3><p>' + feature.properties.notes + '</p>';
-        }
-        
+            var popupContent = '<h2>School Information</h2>' +'<table>'+
+                    '<tr>'+
+                        '<td colspan="2">' + (feature.properties['full_id'] !== null ? autolinker.link(feature.properties['full_id'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">' + (feature.properties['osm_id'] !== null ? autolinker.link(feature.properties['osm_id'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">Name: ' + (feature.properties['name'] !== null ? autolinker.link(feature.properties['name'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">Grades: ' + (feature.properties['MOE_years'] !== null ? autolinker.link(feature.properties['MOE_years'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">Gender: ' + (feature.properties['MOE_gender'] !== null ? autolinker.link(feature.properties['MOE_gender'].toLocaleString()) : '') + '</td>'+
+                    '</tr>'+
+                    '<tr>'+
+                        '<td colspan="2">Address: ' + addr + '</td>'+
+                    '</tr>';
+                    if(feature.properties['email'] !== null){
+                        popupContent+= '<tr>'+'<td colspan="2">Email: ' + (feature.properties['email'] !== null ? autolinker.link(feature.properties['email'].toLocaleString()) : '') + '</td>'+'</tr>'
+                    }
+                    if(feature.properties['religion'] !== null){
+                        popupContent+= '<tr>'+'<td colspan="2">Religion: ' + (feature.properties['religion'] !== null ? autolinker.link(feature.properties['religion'].toLocaleString()) : '') + '</td>'+'</tr>'
+                    }
+                    if(feature.properties['website'] !== null){
+                        popupContent+= '<tr>'+'<td colspan="2">Website: ' + (feature.properties['website'] !== null ? autolinker.link(feature.properties['website'].toLocaleString()) : '') + '</td>'+'</tr>'
+                    }
+                    if(feature.properties['phone'] !== null){
+                        popupContent+= '<tr>'+'<td colspan="2">Phone: ' + (feature.properties['phone'] !== null ? autolinker.link(feature.properties['phone'].toLocaleString()) : '') + '</td>'+'</tr>'
+                    }
+                    if (feature.properties.notes !== undefined) {
+                        popupContent += '<h3>Notes:</h3><p>' + feature.properties.notes + '</p>';
+                    }
+                    
 
-        // Load notes from cookies
-        var notesCookie = 'notes-' + feature.properties['osm_id'];
-        feature.properties.notes = Cookies.get(notesCookie) || '';
+                    // Load notes from cookies
+                    var notesCookie = 'notes-' + feature.properties['osm_id'];
+                    feature.properties.notes = Cookies.get(notesCookie) || '';
 
-        popupContent += '<tr><td colspan="2"><label for="notes-' + feature.properties['osm_id'] + '">Notes:</label></td></tr>';
-        popupContent += '<tr><td colspan="2"><textarea id="notes-' + feature.properties['osm_id'] + '" style="width:100%;height:80px;resize:none">' + feature.properties.notes + '</textarea></td></tr>';
-        popupContent += '<tr><td colspan="2"><button id="saveNotesButton-' + feature.properties['osm_id'] + '">Save</button></td></tr>';
+                    popupContent += '<tr><td colspan="2"><label for="notes-' + feature.properties['osm_id'] + '">Notes:</label></td></tr>';
+                    popupContent += '<tr><td colspan="2"><textarea id="notes-' + feature.properties['osm_id'] + '" style="width:100%;height:80px;resize:none">' + feature.properties.notes + '</textarea></td></tr>';
+                    popupContent += '<tr><td colspan="2"><button id="saveNotesButton-' + feature.properties['osm_id'] + '">Save</button></td></tr>';
+                    popupContent += '<tr><td colspan="2"><button id="saveSchoolButton-' + feature.properties['osm_id'] + '">Save School</button></td></tr>';
+                    popupContent += '</table>';
 
+            layer.bindPopup(popupContent, { maxHeight: 400 });
 
-        popupContent += '</table>';
+            layer.on('popupopen', function() {
+                // When the popup is opened, add a click event listener to the "Save School" button
+                var saveSchoolButton = document.getElementById('saveSchoolButton-' + feature.properties['osm_id']);
 
-        layer.bindPopup(popupContent, { maxHeight: 400 });
-}
+                // Function to check if the school is saved
+                function isSchoolSaved() {
+                    return savedSchools.some(function(school) {
+                    return school.osm_id === feature.properties.osm_id;
+                    });
+                }
+
+                // Update the button text depending on whether the school is saved
+                saveSchoolButton.textContent = isSchoolSaved() ? 'Unsave School' : 'Save School';
+
+                saveSchoolButton.addEventListener('click', function() {
+                    if (isSchoolSaved()) {
+                        // If the school is saved, remove it from the list
+                        savedSchools = savedSchools.filter(function(school) {
+                            return school.osm_id !== feature.properties.osm_id;
+                        });
+                        alert('School removed!');
+                    } else {
+                        // Save the school to the list
+                        savedSchools.push(feature.properties);
+                        alert('School saved!');
+                    }
+
+                    // Update the button text depending on whether the school is saved
+                    saveSchoolButton.textContent = isSchoolSaved() ? 'Unsave School' : 'Save School';
+
+                    // Print the saved schools array to the console
+                    console.log(savedSchools);
+                });
+            });
+        }
+
         function style_school_boys_2_0() {
             return {
                 pane: 'pane_school_boys_2',
@@ -417,48 +365,32 @@ var popupContent = '<h2>School Information</h2>' +'<table>'+
         map.createPane('pane_school_boys_2');
         map.getPane('pane_school_boys_2').style.zIndex = 402;
         map.getPane('pane_school_boys_2').style['mix-blend-mode'] = 'normal';
-        var layer_school_boys_2 = new L.geoJson()
-        // var layer_school_boys_2 = new L.geoJson(json_school_boys_2, {
-        //     attribution: '',
-        //     interactive: true,
-        //     dataVar: 'json_school_boys_2',
-        //     layerName: 'layer_school_boys_2',
-        //     pane: 'pane_school_boys_2',
-        //     onEachFeature: pop_school_boys_2,
-        //     style: style_school_boys_2_0,
-        // });
-
-        $.ajax({
-            type:"get",
-            url: 'http://127.0.0.1:5000/data/boyschool',
-            dataType: 'json',
-            async: false,
-            success: function (data) {
-                console.log("33.3%  [IIII      ]")
-                layer_school_boys_2 = L.geoJSON(data, {
-                    attribution: '',
-                    interactive: true,
-                    layerName: 'layer_school_boys_2',
-                    pane: 'pane_school_boys_2',
-                    onEachFeature: pop_school_boys_2,
-                    style: style_school_boys_2_0,
-                })
-            },
-            error: function (xhr, status, error) {
-                console.log('Ajax Fail: ' + error);
-            }
+        var layer_school_boys_2 = new L.geoJson(json_school_boys_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_school_boys_2',
+            layerName: 'layer_school_boys_2',
+            pane: 'pane_school_boys_2',
+            onEachFeature: pop_school_boys_2,
+            style: style_school_boys_2_0,
         });
         bounds_group.addLayer(layer_school_boys_2);
         map.addLayer(layer_school_boys_2);
+
+        //coed school popup
         function pop_school_coed_3(feature, layer) {
-            layer.on({
+
+            layer.on({ 
                 mouseout: function(e) {
+                    // console.log("pop_school_coed_3 layer:", layer); 
+                    // console.log("pop_school_coed_3 feature:", feature); 
                     for (i in e.target._eventParents) {
                         e.target._eventParents[i].resetStyle(e.target);
                     }
                 },
                 mouseover: highlightFeature,
             });
+
             var addr = (feature.properties['addr_house'] !== null ? autolinker.link(feature.properties['addr_house'].toLocaleString()) : '') + ' ' + (feature.properties['addr_stree'] !== null ? autolinker.link(feature.properties['addr_stree'].toLocaleString()) : '') + ', Auckland ' + (feature.properties['addr_postc'] !== null ? autolinker.link(feature.properties['addr_postc'].toLocaleString()) : '')
             var popupContent = '<h2>School Information</h2>' +'<table>'+
                     '<tr>'+ //All features have these properties present
@@ -471,10 +403,10 @@ var popupContent = '<h2>School Information</h2>' +'<table>'+
                         '<td colspan="2">Name: ' + (feature.properties['name'] !== null ? autolinker.link(feature.properties['name'].toLocaleString()) : '') + '</td>'+
                     '</tr>'+
                     '<tr>'+
-                        '<td colspan="2">Grades: ' + (feature.properties['moe_years'] !== null ? autolinker.link(feature.properties['moe_years'].toLocaleString()) : '') + '</td>'+
+                        '<td colspan="2">Grades: ' + (feature.properties['MOE_years'] !== null ? autolinker.link(feature.properties['MOE_years'].toLocaleString()) : '') + '</td>'+
                     '</tr>'+
                     '<tr>'+
-                        '<td colspan="2">Gender: ' + (feature.properties['moe_gender'] !== null ? autolinker.link(feature.properties['moe_gender'].toLocaleString()) : '') + '</td>'+
+                        '<td colspan="2">Gender: ' + (feature.properties['MOE_gender'] !== null ? autolinker.link(feature.properties['MOE_gender'].toLocaleString()) : '') + '</td>'+
                     '</tr>'+
                     '<tr>'+
                         '<td colspan="2">Address: ' + addr + '</td>'+
@@ -504,11 +436,47 @@ var popupContent = '<h2>School Information</h2>' +'<table>'+
                     popupContent += '<tr><td colspan="2"><label for="notes-' + feature.properties['osm_id'] + '">Notes:</label></td></tr>';
                     popupContent += '<tr><td colspan="2"><textarea id="notes-' + feature.properties['osm_id'] + '" style="width:100%;height:80px;resize:none">' + feature.properties.notes + '</textarea></td></tr>';
                     popupContent += '<tr><td colspan="2"><button id="saveNotesButton-' + feature.properties['osm_id'] + '">Save</button></td></tr>';
+                    popupContent += '<tr><td colspan="2"><button id="saveSchoolButton-' + feature.properties['osm_id'] + '">Save School</button></td></tr>';
                     popupContent += '</table>';
 
             layer.bindPopup(popupContent, { maxHeight: 400 });
 
+            layer.on('popupopen', function() {
+                // When the popup is opened, add a click event listener to the "Save School" button
+                var saveSchoolButton = document.getElementById('saveSchoolButton-' + feature.properties['osm_id']);
+
+                // Function to check if the school is saved
+                function isSchoolSaved() {
+                    return savedSchools.some(function(school) {
+                    return school.osm_id === feature.properties.osm_id;
+                    });
+                }
+
+                // Update the button text depending on whether the school is saved
+                saveSchoolButton.textContent = isSchoolSaved() ? 'Unsave School' : 'Save School';
+
+                saveSchoolButton.addEventListener('click', function() {
+                    if (isSchoolSaved()) {
+                        // If the school is saved, remove it from the list
+                        savedSchools = savedSchools.filter(function(school) {
+                            return school.osm_id !== feature.properties.osm_id;
+                        });
+                        alert('School removed!');
+                    } else {
+                        // Save the school to the list
+                        savedSchools.push(feature.properties);
+                        alert('School saved!');
+                    }
+
+                    // Update the button text depending on whether the school is saved
+                    saveSchoolButton.textContent = isSchoolSaved() ? 'Unsave School' : 'Save School';
+
+                    // Print the saved schools array to the console
+                    console.log(savedSchools);
+                });
+            });
         }
+
 
         function saveNotes(layer, feature) {
             // console.log("saveNotes layer:", layer); 
@@ -524,6 +492,8 @@ var popupContent = '<h2>School Information</h2>' +'<table>'+
 
             layer.getPopup()._close();
         }
+
+
 
 
         function style_school_coed_3_0() {
@@ -544,47 +514,26 @@ var popupContent = '<h2>School Information</h2>' +'<table>'+
         map.createPane('pane_school_coed_3');
         map.getPane('pane_school_coed_3').style.zIndex = 403;
         map.getPane('pane_school_coed_3').style['mix-blend-mode'] = 'normal';
-        var layer_school_coed_3 = new L.geoJson();
-        // var layer_school_coed_3 = new L.geoJson(json_school_coed_3, {
-        //     attribution: '',
-        //     interactive: true,
-        //     dataVar: 'json_school_coed_3',
-        //     layerName: 'layer_school_coed_3',
-        //     pane: 'pane_school_coed_3',
-        //     onEachFeature: pop_school_coed_3,
-        //     style: style_school_coed_3_0,
-        // });
 
-        $.ajax({
-            type:"get",
-            url: 'http://127.0.0.1:5000/data/coedschool',
-            dataType: 'json',
-            async: false,
-            success: function (data) {
-                console.log("50.0%  [IIIIII    ]")
-                layer_school_coed_3 = L.geoJSON(data, {
-                    attribution: '',
-                    interactive: true,
-                    layerName: 'layer_school_coed_3',
-                    pane: 'pane_school_coed_3',
-                    onEachFeature: function(feature, layer) {
-                        if (!feature.properties.note) {
-                            feature.properties.note = '';
-                        }
-                        pop_school_coed_3(feature, layer);
-                },
-                    style: style_school_coed_3_0,
-                })
-            },
-            error: function (xhr, status, error) {
-                console.log('Ajax Fail: ' + error);
-            }
-        });
-
+        var layer_school_coed_3 = new L.geoJson(json_school_coed_3, {
+    attribution: '',
+    interactive: true,
+    dataVar: 'json_school_coed_3',
+    layerName: 'layer_school_coed_3',
+    pane: 'pane_school_coed_3',
+    onEachFeature: function(feature, layer) {
+        if (!feature.properties.note) {
+            feature.properties.note = '';
+        }
+        pop_school_coed_3(feature, layer);
+    },
+    style: style_school_coed_3_0,
+});
         bounds_group.addLayer(layer_school_coed_3);
         map.addLayer(layer_school_coed_3);
 
-        map.on('popupopen', function (e) {
+
+    map.on('popupopen', function (e) {
   var layer = e.popup._source;
 
   // if the layer has a feature property before accessing it, prevents navigation popup error
@@ -593,6 +542,7 @@ var popupContent = '<h2>School Information</h2>' +'<table>'+
 
     // update the textarea with the saved notes
     var notesTextarea = document.getElementById("notes-" + feature.properties['osm_id']);
+    
     notesTextarea.value = feature.properties.notes;
 
     // set focus on the textarea
@@ -606,6 +556,8 @@ var popupContent = '<h2>School Information</h2>' +'<table>'+
   }
 });
 
+        
+        
         function pop_park_4(feature, layer) {
             layer.on({
                 mouseout: function(e) {
@@ -625,6 +577,7 @@ var popupContent = '<h2>School Information</h2>' +'<table>'+
 
             layer.bindPopup(popupContent, {maxHeight: 400});
         }
+
         function style_park_4_0() {
             return {
                 pane: 'pane_park_4',
@@ -643,40 +596,15 @@ var popupContent = '<h2>School Information</h2>' +'<table>'+
         map.createPane('pane_park_4');
         map.getPane('pane_park_4').style.zIndex = 404;
         map.getPane('pane_park_4').style['mix-blend-mode'] = 'normal';
-        var layer_park_4 = new L.geoJson()
-        // var layer_park_4 = new L.geoJson(json_park_4, {
-        //     attribution: '',
-        //     interactive: true,
-        //     dataVar: 'json_park_4',
-        //     layerName: 'layer_park_4',
-        //     pane: 'pane_park_4',
-        //     onEachFeature: pop_park_4,
-        //     style: style_park_4_0,
-        // });
-        $.ajax({
-            type:"get",
-            url: 'http://127.0.0.1:5000/data/park',
-            dataType: 'json',
-            async: false,
-            success: function (data) {
-                console.log("66.6%  [IIIIIIII  ]")
-                // console.log(data)
-                layer_park_4 = L.geoJSON(data, {
-                    attribution: '',
-                    interactive: true,
-                    layerName: 'layer_park_4',
-                    pane: 'pane_park_4',
-                    onEachFeature: pop_park_4,
-                    style: style_park_4_0,
-                })
-            },
-            error: function (xhr, status, error) {
-                console.log('Ajax Fail: ' + error);
-            }
+        var layer_park_4 = new L.geoJson(json_park_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_park_4',
+            layerName: 'layer_park_4',
+            pane: 'pane_park_4',
+            onEachFeature: pop_park_4,
+            style: style_park_4_0,
         });
-
-        bounds_group.addLayer(layer_park_4);
-        map.addLayer(layer_park_4);
         function pop_amenity_parking_5(feature, layer) {
             layer.on({
                 mouseout: function(e) {
@@ -712,39 +640,15 @@ var popupContent = '<h2>School Information</h2>' +'<table>'+
         map.createPane('pane_amenity_parking_5');
         map.getPane('pane_amenity_parking_5').style.zIndex = 405;
         map.getPane('pane_amenity_parking_5').style['mix-blend-mode'] = 'normal';
-        var layer_amenity_parking_5 = new L.geoJson()
-        // var layer_amenity_parking_5 = new L.geoJson(json_amenity_parking_5, {
-        //     attribution: '',
-        //     interactive: true,
-        //     dataVar: 'json_amenity_parking_5',
-        //     layerName: 'layer_amenity_parking_5',
-        //     pane: 'pane_amenity_parking_5',
-        //     onEachFeature: pop_amenity_parking_5,
-        //     style: style_amenity_parking_5_0,
-        // });
-        $.ajax({
-            type:"get",
-            url: 'http://127.0.0.1:5000/data/parking',
-            dataType: 'json',
-            async: false,
-            success: function (data) {
-                console.log("83.3%  [IIIIIIIII ]")
-                // console.log(data)
-                layer_park_4 = L.geoJSON(data, {
-                    attribution: '',
-                    interactive: true,
-                    layerName: 'layer_amenity_parking_5',
-                    pane: 'pane_amenity_parking_5',
-                    onEachFeature: pop_amenity_parking_5,
-                    style: style_amenity_parking_5_0,
-                })
-            },
-            error: function (xhr, status, error) {
-                console.log('Ajax Fail: ' + error);
-            }
+        var layer_amenity_parking_5 = new L.geoJson(json_amenity_parking_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_amenity_parking_5',
+            layerName: 'layer_amenity_parking_5',
+            pane: 'pane_amenity_parking_5',
+            onEachFeature: pop_amenity_parking_5,
+            style: style_amenity_parking_5_0,
         });
-        // bounds_group.addLayer(layer_amenity_parking_5);
-        // map.addLayer(layer_amenity_parking_5);
         function pop_bus_stop_6(feature, layer) {
             layer.on({
                 mouseout: function(e) {
@@ -756,7 +660,7 @@ var popupContent = '<h2>School Information</h2>' +'<table>'+
             });
             var popupContent = '<table>\
                     <tr>\
-                        <td colspan="2">Bus Stop ' + (feature.properties['name'] !== null ? autolinker.link(feature.properties['name'].toLocaleString()) : '') + '</td>\
+                        <td colspan="2">Bus Stop' + '</td>\
                     </tr>\
                 </table>';
             layer.bindPopup(popupContent, {maxHeight: 400});
@@ -781,120 +685,89 @@ var popupContent = '<h2>School Information</h2>' +'<table>'+
         map.createPane('pane_bus_stop_6');
         map.getPane('pane_bus_stop_6').style.zIndex = 406;
         map.getPane('pane_bus_stop_6').style['mix-blend-mode'] = 'normal';
-        var layer_bus_stop_6 = new L.geoJson()
-        // var layer_bus_stop_6 = new L.geoJson(json_bus_stop_6, {
-        //     attribution: '',
-        //     interactive: true,
-        //     dataVar: 'json_bus_stop_6',
-        //     layerName: 'layer_bus_stop_6',
-        //     pane: 'pane_bus_stop_6',
-        //     onEachFeature: pop_bus_stop_6,
-        //     pointToLayer: function (feature, latlng) {
-        //         var context = {
-        //             feature: feature,
-        //             variables: {}
-        //         };
-        //         return L.circleMarker(latlng, style_bus_stop_6_0(feature));
-        //     },
-        // });
-        $.ajax({
-            type:"get",
-            url: 'http://127.0.0.1:5000/data/bus_stop',
-            dataType: 'json',
-            async: false,
-            success: function (data) {
-                console.log("100.0% [IIIIIIIIII]")
-                layer_park_4 = L.geoJSON(data, {
-                    attribution: '',
-                    interactive: true,
-                    layerName: 'layer_bus_stop_6',
-                    pane: 'pane_bus_stop_6',
-                    onEachFeature: pop_bus_stop_6,
-                    pointToLayer: function (feature, latlng) {
-                        var context = {
-                            feature: feature,
-                            variables: {}
-                        };
-                        return L.circleMarker(latlng, style_bus_stop_6_0(feature));
-                    },
-                })
+        var layer_bus_stop_6 = new L.geoJson(json_bus_stop_6, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_bus_stop_6',
+            layerName: 'layer_bus_stop_6',
+            pane: 'pane_bus_stop_6',
+            onEachFeature: pop_bus_stop_6,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_bus_stop_6_0(feature));
             },
-            error: function (xhr, status, error) {
-                console.log('Ajax Fail: ' + error);
-            }
         });
-        // bounds_group.addLayer(layer_bus_stop_6);
-        // map.addLayer(layer_bus_stop_6);
         setBounds();
 
-        // 创建一个搜索控件并添加到地图中
-        var searchControl = L.Control.geocoder({  // 搜索控件
-            defaultMarkGeocode: true,
-            position:'topleft',
-            placeholder: "请输入地址...",
-        }).addTo(map);  // 通过 addTo() 方法将其添加到地图中
 
-        // 监听搜索完成事件
-        searchControl.on('markgeocode', function (e) {
-        // 设置地图中心点为搜索结果
-            map.setView(e.geocode.center, 16);
-        }); // e.geocode 是一个 GeocoderResult 对象，包含有关搜索结果的详细信息，例如位置坐标、地址名称等
 
             
             
-            
-            
-        // FILTERING 
+            // FILTERING 
 var filterControl = L.Control.extend({
-        options: {
-            position: 'topright'
-        },
-        onAdd: function (map) {
-            var container = L.DomUtil.create('div', 'filter-container');
-            container.innerHTML = '<button id="filter-btn">Filter Schools</button>';
+    options: {
+        position: 'topright'
+    },
+    onAdd: function (map) {
+        var container = L.DomUtil.create('div', 'filter-container');
+        container.innerHTML = '<button id="filter-btn">Filter</button>';
 
-            //popup for filtering options
-            var filterPopup = L.popup({
-                closeButton: true,
-                closeOnClick: false,
-                minWidth: 200,
-                autoPan: true
-            });
+        //popup for filtering options
+        var filterPopup = L.popup({
+            closeButton: true,
+            closeOnClick: false,
+            minWidth: 200,
+            autoPan: true
+        });
 
-            filterPopup.setContent(
-                '<h4>Filter Schools</h4>' +
-                '<input type="checkbox" id="filter-primary" value="Primary"> Primary Schools<br>' +
-                '<input type="checkbox" id="filter-secondary" value="Secondary"> Secondary Schools<br>' +
-                '<input type="checkbox" id="filter-other" value="Other"> Other Schools<br>' +
-                '<hr>' +
-                '<input type="checkbox" id="filter-boys" value="boys"> Boys Schools<br>' +
-                '<input type="checkbox" id="filter-girls" value="girls"> Girls Schools<br>' +
-                '<input type="checkbox" id="filter-coed" value="coed"> Coed Schools<br>'+
-                '<hr>' +
-                '<input type="checkbox" id="filter-busstops" value="busstops"> Bus Stops<br>' +
-                '<input type="checkbox" id="filter-parks" value="parks"> Parks<br>' +
-                '<input type="checkbox" id="filter-parkingspaces" value="parkingspaces"> Parking Spaces<br>'
-            );
+        filterPopup.setContent(
+            '<h2>Filter Map</h2>' +
+            '<input type="checkbox" id="filter-primary" value="Primary"> Primary Schools<br>' +
+            '<input type="checkbox" id="filter-secondary" value="Secondary"> Secondary Schools<br>' +
+            '<input type="checkbox" id="filter-other" value="Other"> Other Schools<br>' +
+            '<hr>' +
+            '<input type="checkbox" id="filter-boys" value="boys"> Boys Schools<br>' +
+            '<input type="checkbox" id="filter-girls" value="girls"> Girls Schools<br>' +
+            '<input type="checkbox" id="filter-coed" value="coed"> Coed Schools<br>'+
+            '<hr>' +
+            '<input type="checkbox" id="filter-busstops" value="busstops"> Bus Stops<br>' +
+            '<input type="checkbox" id="filter-parks" value="parks"> Parks<br>' +
+            '<input type="checkbox" id="filter-parkingspaces" value="parkingspaces"> Parking Spaces<br>'
+        );
 
+        container.onclick = function (e) {
+            L.DomEvent.stopPropagation(e);
+            filterPopup.setLatLng(map.getCenter()).openOn(map);
 
-            container.onclick = function (e) {
-                L.DomEvent.stopPropagation(e);
-                filterPopup.setLatLng(map.getCenter()).openOn(map);
-                //event listeners to checkboxes
-                document.getElementById('filter-primary').addEventListener('change', updateSchoolsLayer);
-                document.getElementById('filter-secondary').addEventListener('change', updateSchoolsLayer);
-                document.getElementById('filter-other').addEventListener('change', updateSchoolsLayer);
-                document.getElementById('filter-boys').addEventListener('change', updateSchoolsLayer);
-                document.getElementById('filter-girls').addEventListener('change', updateSchoolsLayer);
-                document.getElementById('filter-coed').addEventListener('change', updateSchoolsLayer);
-                document.getElementById('filter-busstops').addEventListener('change', updateMap);
-                document.getElementById('filter-parks').addEventListener('change', updateMap);
-                document.getElementById('filter-parkingspaces').addEventListener('change', updateMap);
-            };
+            //event listeners to filtering checkboxes
+            document.getElementById('filter-primary').addEventListener('change', updateSchoolsLayer);
+            document.getElementById('filter-secondary').addEventListener('change', updateSchoolsLayer);
+            document.getElementById('filter-other').addEventListener('change', updateSchoolsLayer);
+            document.getElementById('filter-boys').addEventListener('change', updateSchoolsLayer);
+            document.getElementById('filter-girls').addEventListener('change', updateSchoolsLayer);
+            document.getElementById('filter-coed').addEventListener('change', updateSchoolsLayer);
+            document.getElementById('filter-busstops').addEventListener('change', updateMap);
+            document.getElementById('filter-parks').addEventListener('change', updateMap);
+            document.getElementById('filter-parkingspaces').addEventListener('change', updateMap);
+        };
+
+        // When the map is clicked, close the popup
+        map.on('click', function(e) {
+            filterPopup.removeFrom(map);
+        });
+
+        // When the popup is clicked, stop the map click event from firing
+        container.addEventListener('click', function(e) {
+            L.DomEvent.stopPropagation(e);
+        });
 
         return container;
-        }
+    }
 });
+
 map.addControl(new filterControl());
 
 function updateMap() {
@@ -902,32 +775,20 @@ function updateMap() {
      var parks = document.getElementById('filter-parks').checked
      var parkingspaces = document.getElementById('filter-parkingspaces').checked
     
-
-
     if (busstops) {
-        // bounds_group.addLayer(layer_bus_stop_6);
         layer_bus_stop_6.addTo(map);
-        // map.addLayer(layer_bus_stop_6);
     } else {
-        // bounds_group.removeLayer(layer_bus_stop_6)
         map.removeLayer(layer_bus_stop_6)
      }
 
      if (parks) {
-        // bounds_group.addLayer(layer_bus_stop_6);
         layer_park_4.addTo(map);
-        // map.addLayer(layer_bus_stop_6);
     } else {
-        // bounds_group.removeLayer(layer_bus_stop_6)
         map.removeLayer(layer_park_4)
      }
-  
      if (parkingspaces) {
-        // bounds_group.addLayer(layer_bus_stop_6);
         layer_amenity_parking_5.addTo(map);
-        // map.addLayer(layer_bus_stop_6);
     } else {
-        // bounds_group.removeLayer(layer_bus_stop_6)
         map.removeLayer(layer_amenity_parking_5)
      }
 
@@ -949,19 +810,18 @@ function updateSchoolsLayer() {
     var layers = [layer_school_girls_1, layer_school_boys_2, layer_school_coed_3];
     layers.forEach(function (layerGroup) {
         layerGroup.eachLayer(function (layer) {
-            if (layer.feature.properties['moe_years'] !== null && layer.feature.properties['moe_gender'] !== null) {
+            if (layer.feature.properties['MOE_years'] !== null && layer.feature.properties['MOE_gender'] !== null) {
                 var currentSchoolType = 'Other';
-                if (layer.feature.properties['moe_years'].includes("1-6") || layer.feature.properties['moe_years'].includes("1-8")) {
+                if (layer.feature.properties['MOE_years'].includes("1-6") || layer.feature.properties['MOE_years'].includes("1-8")) {
                     currentSchoolType = 'Primary';
-                } else if (layer.feature.properties['moe_years'].includes("7-13") || layer.feature.properties['moe_years'].includes("9-13")) {
+                } else if (layer.feature.properties['MOE_years'].includes("7-13") || layer.feature.properties['MOE_years'].includes("9-13")) {
                     currentSchoolType = 'Secondary';
                 }
 
                 var isVisible = (schoolType[currentSchoolType] || Object.values(schoolType).every(v => !v)) &&
-                                (genderType[layer.feature.properties['moe_gender']] || Object.values(genderType).every(v => !v)) ;
+                                (genderType[layer.feature.properties['MOE_gender']] || Object.values(genderType).every(v => !v)) ;
 
                 if (isVisible) {
-                   
                     layer.addTo(map);
                 } else {
                     map.removeLayer(layer);
@@ -970,10 +830,6 @@ function updateSchoolsLayer() {
         });
     });
 }
-
-
-//These are the layer object names that we need to add to filtering option to remove/add to the map.
-//json_bus_stop_6, json_park_4, json_amenity_parking_5
 
 //center map view to Auckland
 var centreMap  = L.Control.extend({
@@ -986,7 +842,7 @@ var centreMap  = L.Control.extend({
 
         container.onclick = function (e) {
             L.DomEvent.stopPropagation(e);
-            //set the map view to the center of Auckland, zoom level of 10
+            //set the map view to the center of Auckland, zoom level of 12
             map.setView([-36.8485, 174.7633], 12);
         };
 
@@ -994,8 +850,9 @@ var centreMap  = L.Control.extend({
     }
 });
 map.addControl(new centreMap ());
+//----------------------------------------------------
 
-
+//Starting point dropdown
 function searchOpenCage(query, callback) {
   const apiKey = 'ecfdbf092fe54c139d294aefa28ec4bd'; //OpenCage API key
   const apiUrl = `https://api.opencagedata.com/geocode/v1/json?key=${apiKey}&q=${query}&limit=5&countrycode=nz&proximity=-36.8485,174.7633`;
@@ -1062,26 +919,6 @@ function populateSchoolDropdown(dropdown) {
   });
 }
 
-// populates the dropdown with school names
-// function populateSchoolDropdown(dropdown) {
-//   console.log('Populating dropdown...');
-//   layers.forEach(function (layerGroup, groupIndex) {
-//     console.log('Layer group index:', groupIndex, 'Layer group:', layerGroup);
-//     layerGroup.eachLayer(function (layer, layerIndex) {
-//       console.log('Layer index:', layerIndex, 'Layer:', layer);
-//       if (layer.feature && layer.feature.properties && typeof layer.getBounds === 'function') {
-//         var option = document.createElement("option");
-//         var coordinates = layer.getBounds().getCenter(); // center coordinates of the polygon
-//         option.value = JSON.stringify(coordinates); // coordinates as a JSON string
-//         option.text = layer.feature.properties['name']; // name of school
-//         dropdown.add(option);
-//       } else {
-//         console.warn('Skipping layer index:', layerIndex, 'Layer:', layer);
-//       }
-//     });
-//   });
-// }
-
 function initSchoolAutocomplete() {
   schoolNames = []; // clear the schoolNames array
   isDropdownPopulated = false;
@@ -1138,7 +975,6 @@ function initCalculateRouteBtn() {
   });
 }
 
-
 // navigation control
 var navigationControl = L.Control.extend({
   options: {
@@ -1165,35 +1001,43 @@ var navigationControl = L.Control.extend({
       '<button id="calculate-route-btn">Navigate</button>'
     );
 
-
     container.onclick = function (e) {
-  L.DomEvent.stopPropagation(e);
+      L.DomEvent.stopPropagation(e);
 
-  if (e.target.id === "navigation-btn") { // check if the clicked element has an id of "navigation-btn"
-    navigationPopup.setLatLng(map.getCenter()).openOn(map);
+      if (e.target.id === "navigation-btn") { // check if the clicked element has an id of "navigation-btn"
+        navigationPopup.setLatLng(map.getCenter()).openOn(map);
 
-    isDropdownPopulated = false;
-    isStartingAddressAutocompleteInitialized = false;
+        isDropdownPopulated = false;
+        isStartingAddressAutocompleteInitialized = false;
 
-    console.log('isDropdownPopulated:', isDropdownPopulated);
-    console.log('isStartingAddressAutocompleteInitialized:', isStartingAddressAutocompleteInitialized);
+        console.log('isDropdownPopulated:', isDropdownPopulated);
+        console.log('isStartingAddressAutocompleteInitialized:', isStartingAddressAutocompleteInitialized);
 
-    initCalculateRouteBtn();
+        initCalculateRouteBtn();
 
-    // initialize the autocomplete only if it hasn't been initialized before
-    if (!isDropdownPopulated) {
-      initSchoolAutocomplete();
-      isDropdownPopulated = true;
-    }
+        // initialize the autocomplete only if it hasn't been initialized before
+        if (!isDropdownPopulated) {
+          initSchoolAutocomplete();
+          isDropdownPopulated = true;
+        }
 
-    // initialize the starting address autocomplete only if it hasn't been initialized before
-    if (!isStartingAddressAutocompleteInitialized) { 
-      initOpenCageAutocomplete();
-      isStartingAddressAutocompleteInitialized = true;
-    }
-  }
-};
+        // initialize the starting address autocomplete only if it hasn't been initialized before
+        if (!isStartingAddressAutocompleteInitialized) { 
+          initOpenCageAutocomplete();
+          isStartingAddressAutocompleteInitialized = true;
+        }
+      }
+    };
 
+    // When the map is clicked, close the popup
+    map.on('click', function(e) {
+      navigationPopup.removeFrom(map);
+    });
+
+    // When the popup is clicked, stop the map click event from firing
+    container.addEventListener('click', function(e) {
+      L.DomEvent.stopPropagation(e);
+    });
 
     return container;
   }
@@ -1299,9 +1143,79 @@ async function calculateRoute(startingCoordinates, destinationCoordinates) {
   }
   
 }
+        
 
+//search bar
+
+var searchControl = L.Control.geocoder({  
+            defaultMarkGeocode: true,
+            position:'topleft',
+            placeholder: "Search for schools"
+        
+}).addTo(map);  
+
+
+
+//variable for the marker
+var marker;
+
+function initSearchBarAutocomplete() {
+  var schoolNames = [];
+
+  // populate the schoolNames array
+  layers.forEach(function (layerGroup) {
+    layerGroup.eachLayer(function (layer) {
+      if (layer.feature && layer.feature.properties && typeof layer.getBounds === 'function') {
+        var name = layer.feature.properties['name'];
+        var coordinates = layer.getBounds().getCenter();
+        schoolNames.push({label: name, value: JSON.stringify(coordinates)});
+      }
+    });
+  });
+
+//   console.log('School Names:', schoolNames);
+
+  // initialize the autocomplete for the search bar
+  $("input[placeholder='Search for schools']").autocomplete({
+      source: function(request, response) {
+      var term = request.term.toLowerCase();
+      var results = schoolNames.filter(function(school) {
+        return school.label.toLowerCase().startsWith(term);
+      });
+      response(results.slice(0, 5)); // limit to 5 results
+    },
+    minLength: 1,
+    select: function (event, ui) {
+      console.log('Autocomplete select function called with item:', ui.item); 
+      $("#search-bar").val(ui.item.label);
+      $("#search-bar").data('coordinates', ui.item.value);
+
+      // remove the previous marker
+      if (marker) {
+        map.removeLayer(marker);
+      }
+
+      // add the new marker
+      var coords = JSON.parse(ui.item.value);
+      marker = L.marker([coords.lat, coords.lng]).addTo(map);
+
+      // center the map on the new marker
+      map.panTo(new L.LatLng(coords.lat, coords.lng));
+
+      // add a click event to the marker to remove it when clicked
+      marker.on('click', function() {
+        map.removeLayer(marker);
+        marker = null;
+      });
+
+      return false;
+    }
+  });
+
+//   console.log('Search bar autocomplete initialized');
+}
+initSearchBarAutocomplete();
 
         </script>
     </body>
 </html>
-
