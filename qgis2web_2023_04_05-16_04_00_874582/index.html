@@ -164,17 +164,17 @@
                     if(feature.properties['phone'] !== null){
                         popupContent+= '<tr>'+'<td colspan="2">Phone: ' + (feature.properties['phone'] !== null ? autolinker.link(feature.properties['phone'].toLocaleString()) : '') + '</td>'+'</tr>'
                     }
-                    if (feature.properties.notes !== undefined) {
-                        popupContent += '<h3>Notes:</h3><p>' + feature.properties.notes + '</p>';
+                    if (feature.properties.note !== null) {
+                        popupContent += '<h3>Notes:</h3><p>' + feature.properties.note + '</p>';
                     }
                     
 
                     // Load notes from cookies
                     var notesCookie = 'notes-' + feature.properties['osm_id'];
-                    feature.properties.notes = Cookies.get(notesCookie) || '';
+                    feature.properties.note = Cookies.get(notesCookie) || '';
 
                     popupContent += '<tr><td colspan="2"><label for="notes-' + feature.properties['osm_id'] + '">Notes:</label></td></tr>';
-                    popupContent += '<tr><td colspan="2"><textarea id="notes-' + feature.properties['osm_id'] + '" style="width:100%;height:80px;resize:none">' + feature.properties.notes + '</textarea></td></tr>';
+                    popupContent += '<tr><td colspan="2"><textarea id="notes-' + feature.properties['osm_id'] + '" style="width:100%;height:80px;resize:none">' + feature.properties.note + '</textarea></td></tr>';
                     popupContent += '<tr><td colspan="2"><button id="saveNotesButton-' + feature.properties['osm_id'] + '">Save</button></td></tr>';
                     popupContent += '<tr><td colspan="2"><button id="saveSchoolButton-' + feature.properties['osm_id'] + '">Save School</button></td></tr>';
                     popupContent += '</table>';
@@ -294,17 +294,17 @@
                     if(feature.properties['phone'] !== null){
                         popupContent+= '<tr>'+'<td colspan="2">Phone: ' + (feature.properties['phone'] !== null ? autolinker.link(feature.properties['phone'].toLocaleString()) : '') + '</td>'+'</tr>'
                     }
-                    if (feature.properties.notes !== undefined) {
-                        popupContent += '<h3>Notes:</h3><p>' + feature.properties.notes + '</p>';
+                    if (feature.properties.note !== undefined) {
+                        popupContent += '<h3>Notes:</h3><p>' + feature.properties.note + '</p>';
                     }
                     
 
                     // Load notes from cookies
                     var notesCookie = 'notes-' + feature.properties['osm_id'];
-                    feature.properties.notes = Cookies.get(notesCookie) || '';
+                    feature.properties.note = Cookies.get(notesCookie) || '';
 
                     popupContent += '<tr><td colspan="2"><label for="notes-' + feature.properties['osm_id'] + '">Notes:</label></td></tr>';
-                    popupContent += '<tr><td colspan="2"><textarea id="notes-' + feature.properties['osm_id'] + '" style="width:100%;height:80px;resize:none">' + feature.properties.notes + '</textarea></td></tr>';
+                    popupContent += '<tr><td colspan="2"><textarea id="notes-' + feature.properties['osm_id'] + '" style="width:100%;height:80px;resize:none">' + feature.properties.note + '</textarea></td></tr>';
                     popupContent += '<tr><td colspan="2"><button id="saveNotesButton-' + feature.properties['osm_id'] + '">Save</button></td></tr>';
                     popupContent += '<tr><td colspan="2"><button id="saveSchoolButton-' + feature.properties['osm_id'] + '">Save School</button></td></tr>';
                     popupContent += '</table>';
@@ -424,17 +424,17 @@
                     if(feature.properties['phone'] !== null){
                         popupContent+= '<tr>'+'<td colspan="2">Phone: ' + (feature.properties['phone'] !== null ? autolinker.link(feature.properties['phone'].toLocaleString()) : '') + '</td>'+'</tr>'
                     }
-                    if (feature.properties.notes !== undefined) {
-                        popupContent += '<h3>Notes:</h3><p>' + feature.properties.notes + '</p>';
+                    if (feature.properties.note !== undefined) {
+                        popupContent += '<h3>Notes:</h3><p>' + feature.properties.note + '</p>';
                     }
                     
 
                     // Load notes from cookies
                     var notesCookie = 'notes-' + feature.properties['osm_id'];
-                    feature.properties.notes = Cookies.get(notesCookie) || '';
+                    feature.properties.note = Cookies.get(notesCookie) || '';
 
                     popupContent += '<tr><td colspan="2"><label for="notes-' + feature.properties['osm_id'] + '">Notes:</label></td></tr>';
-                    popupContent += '<tr><td colspan="2"><textarea id="notes-' + feature.properties['osm_id'] + '" style="width:100%;height:80px;resize:none">' + feature.properties.notes + '</textarea></td></tr>';
+                    popupContent += '<tr><td colspan="2"><textarea id="notes-' + feature.properties['osm_id'] + '" style="width:100%;height:80px;resize:none">' + feature.properties.note + '</textarea></td></tr>';
                     popupContent += '<tr><td colspan="2"><button id="saveNotesButton-' + feature.properties['osm_id'] + '">Save</button></td></tr>';
                     popupContent += '<tr><td colspan="2"><button id="saveSchoolButton-' + feature.properties['osm_id'] + '">Save School</button></td></tr>';
                     popupContent += '</table>';
@@ -479,12 +479,12 @@
 
 
         function saveNotes(layer, feature) {
-            // console.log("saveNotes layer:", layer); 
-            // console.log("saveNotes feature:", feature); 
+            console.log("saveNotes layer:", layer); 
+            console.log("saveNotes feature:", feature); 
 
             var notes = document.getElementById("notes-" + feature.properties['osm_id']).value;
             console.log(notes);
-            feature.properties.notes = notes;
+            feature.properties.note = notes;
 
             // Save notes to cookies
             var notesCookie = 'notes-' + feature.properties['osm_id'];
@@ -537,13 +537,15 @@
   var layer = e.popup._source;
 
   // if the layer has a feature property before accessing it, prevents navigation popup error
-  if (layer && layer.feature && layer.feature.properties.notes) {
+//   if (layer && layer.feature && layer.feature.properties.note) {
+    if (layer && layer.feature ) {
+
     var feature = layer.feature;
 
     // update the textarea with the saved notes
     var notesTextarea = document.getElementById("notes-" + feature.properties['osm_id']);
     
-    notesTextarea.value = feature.properties.notes;
+    notesTextarea.value = feature.properties.note;
 
     // set focus on the textarea
     notesTextarea.focus();
@@ -551,6 +553,7 @@
     // click event for the "Save" button
     var saveNotesButton = document.getElementById("saveNotesButton-" + feature.properties['osm_id']);
     saveNotesButton.onclick = function () {
+        console.log("save notes button clicked")
       saveNotes(layer, feature);
     };
   }
