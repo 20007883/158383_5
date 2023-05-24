@@ -897,7 +897,7 @@ savedSchoolsButton.addEventListener('click', function() {
         // Create a button and set its id
         var button = document.createElement('button');
         button.id = 'filter-btn';
-        button.className = 'Props';
+        button.className = 'Props-function';
         button.innerHTML = 'Filter';
             
         // Append the button to the target div
@@ -1017,7 +1017,7 @@ var targetDiv = document.querySelector('.centreBtn');
 
 var button = document.createElement('button');
 button.id = 'center-auckland-btn';
-button.className = 'Props';
+button.className = 'Props-function';
 button.innerHTML = 'Center Map';
 
 targetDiv.appendChild(button);
@@ -1236,7 +1236,7 @@ var targetDiv = document.querySelector('.navButton');
 
 var button = document.createElement('button');
 button.id = 'navigation-btn';
-button.className = 'Props'
+button.className = 'Props-function'
 button.innerHTML = 'Navigate';
 
 
@@ -1346,7 +1346,7 @@ const endMarker = L.marker(fixedRouteCoordinates[fixedRouteCoordinates.length - 
   drawRoute(fixedRouteCoordinates); // drawRoute function with the fixed coordinates
 
   const clearRouteBtn = document.createElement("button");
-  clearRouteBtn.className = "Props"
+  clearRouteBtn.className = "Props-function"
 clearRouteBtn.innerHTML = "Clear Route";
 clearRouteBtn.addEventListener("click", clearRoute);
 
