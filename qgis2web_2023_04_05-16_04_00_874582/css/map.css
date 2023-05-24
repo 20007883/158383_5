@@ -1,0 +1,265 @@
+body{
+	/* margin:0px;
+	padding:0px; */
+	background:#232323;
+    
+}
+
+#menuToggle{
+	position:relative;
+    bottom: 48px;
+	/* top:-45px; */
+    left: 150px;
+	/* left:50px; */
+    
+	user-select:none;
+}
+#menu-left{
+    position: fixed;
+    z-index:999;
+    margin:0px;
+	padding:0px;
+    padding-left: 40px;
+    
+	/* background:#232323; */
+}
+#menuToggle input{
+	width:34px;
+	height:31px;
+	position:absolute;
+	top:-5px;
+	left:-5px;
+	
+	cursor:pointer;
+	opacity:0;
+	z-index:30;
+}
+#menuToggle span{
+	display:block;
+	width:32px;
+	height:4px;
+	background-color:white;
+	border-radius:3px;
+	margin:5px 0;
+	
+	z-index:3;
+}
+#menu a{
+	text-decoration:none;
+   
+}
+#menu{
+	width:350px;
+	background-color:#ededed;
+	position:absolute;
+    /* right: 0px; */
+	left:-190px;
+	padding-top:70px;
+    height: 700px;
+	margin:15px 0 0 -10px;
+	list-style-type:none;
+	z-index:1;
+	opacity:0.8;/*背景色要覆盖，三横杠，没办法先设置透明色用着*/
+	
+	transform:translate(-100%,0);/*让菜单栏滑进左侧不可视区域*/
+	transition: transform 1s ease;/*设置transform的动画效果目标，秒数，动画方式*/
+}
+#menu li{
+	margin:35px 0;
+	font-size:22px;
+	padding-left:25px;
+	color:black;
+}
+#menu li:hover{
+	color:tomato;
+	transform-origin:0 0;/*变化时的原点定位，及左上角*/
+	transform:scale(1.1);/*放大1.1倍*/
+}
+#menuToggle input:checked ~ span{/*被点击后span元素的改变*/
+	background-color:tomato;
+	transform-origin:0 0;
+	transform:scale(0.8);/*缩小三横杠*/
+	z-index:2;
+}
+#menuToggle input:checked ~ ul{
+	transform-origin:0 0;
+	transform: none;/*让在#menu中设置的transform（左移进不可视）消失，重点理解*/
+	/*上面两个，第一个对应的是#menu里面的transform 第二个则是是效果消失 */
+}
+
+#map{
+    height: 760px;
+}
+
+
+/*  ---------------------------*/
+
+/* *{
+    margin: 0;
+    padding: 0;
+} */
+/* body{
+    background: #f3f3f3;
+} */
+.control{
+    width: 340px;
+    background: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    border-radius: 5px;
+}
+.item{
+    width: 340px;
+    height: 60px;
+    background: #eeeeee;
+}
+.item div{
+    width: 170px;
+    height: 60px;
+    display: inline-block;
+    color: black;
+    font-size: 18px;
+    text-align: center;
+    line-height: 60px;
+    cursor: pointer;
+}
+.content{
+    width: 100%;
+}
+.content div{
+    margin: 20px 30px;
+    display: none;
+    text-align: left;
+}
+p{
+    color: #4a4a4a;
+    margin-top: 30px;
+    margin-bottom: 6px;
+    font-size: 15px;
+}
+.content input[type="text"], .content input[type="password"]{
+    width: 100%;
+    height: 40px;
+    border-radius: 3px;
+    border: 1px solid #adadad;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+.content input[type="submit"]{
+    margin-top: 40px;
+    width: 100%;
+    height: 40px;
+    border-radius: 5px;
+    color: white;
+    border: 1px solid #adadad;
+    background: #00dd60;
+    cursor: pointer;
+    letter-spacing: 4px;
+    margin-bottom: 40px;
+}
+.active-login{
+    background: white;
+}
+.item div:hover{
+    background: #f6f6f6;
+}
+
+
+
+/* note */
+
+/* body{
+    margin: 0%;
+}
+
+.container{
+    display: flex;
+    background-color: black;
+} */
+
+
+.mapProps {
+   
+    display: grid;
+    place-items: center;
+}
+
+.function {
+    align-self: center;
+    background-color: #fff;
+    background-image: none;
+    margin-bottom: 10%;
+    background-position: 0 90%;
+    background-repeat: repeat no-repeat;
+    background-size: 4px 3px;
+    border-radius: 15px 225px 255px 15px 15px 255px 225px 15px;
+    border-style: solid;
+    border-width: 2px;
+    box-shadow: rgba(0, 0, 0, .2) 15px 28px 25px -18px;
+    box-sizing: border-box;
+    color: #41403e;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: 1rem;
+    line-height: 23px;
+    outline: none;
+    padding: 5% 50px 5% 50px;
+    width: 80%;
+    /* border-right: 500px; */
+    text-decoration: none;
+    transition: all 235ms ease-in-out;
+    border-bottom-left-radius: 15px 255px;
+    border-bottom-right-radius: 225px 15px;
+    border-top-left-radius: 255px 15px;
+    border-top-right-radius: 15px 225px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+}
+
+.function:hover {
+  box-shadow: rgba(0, 0, 0, .3) 2px 8px 8px -5px;
+  transform: translate3d(0, 2px, 0);
+}
+
+.function:focus {
+  box-shadow: rgba(0, 0, 0, .3) 2px 8px 4px -6px;
+}
+
+/* .notification {
+    position: absolute;
+    bottom: 5px;
+    left: 25px;
+    background-color: rgb(231, 177, 0);
+    padding: 5px;
+    border-radius: 10px;
+    transition: opacity 0.5s ease-in-out;
+    font-family: 'Montserrat', sans-serif;
+
+} */
+
+.savedSchoolsTable{
+    text-align: center;
+    font-family:'Montserrat', sans-serif; ;
+}
+/* .row{
+    border-top: 2px solid rgb(104, 104, 104);
+    border-bottom: 2px solid rgb(104, 104, 104);
+} */
+.Props{
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    color: black;
+    background-color: transparent;
+    border: none;
+    text-align: center;
+    /* padding: 100%; */
+}
+
+
+
